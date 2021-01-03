@@ -111,6 +111,149 @@ where
         sum
     }
 
+    /// Return a reference to a maximum of all values.
+    /// Return None if a comparison fails or if self is empty.
+    /// 
+    /// # Example
+    /// ```
+    /// use ndarray::{arr2, Array2};
+    /// use std::f64;
+    /// 
+    /// let a = arr2(&[[1., 2.], [3., 4.]]);
+    /// assert_eq!(a.max(), Some(&4.));
+    /// 
+    /// let b = arr2(&[[1., f64::NAN], [3., 4.]]);
+    /// assert_eq!(b.max(), None);
+    /// 
+    /// let c = arr2(&[[f64::NAN]]);
+    /// assert_eq!(c.max(), None);
+    /// 
+    /// let d: Array2<f64> = arr2(&[[]]);
+    /// assert_eq!(d.max(), None);
+    /// ```
+    pub fn max(&self) -> Option<&A>
+    where A: PartialOrd
+    {
+        if let Some(first) = self.first() {
+            let max = self.fold(first, |acc, x| if acc == acc && !(x < acc) {x} else {acc});
+            if max == max {
+                Some(max)
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+
+    }  
+
+    /// Return a reference to a maximum of all values, ignoring
+    /// incomparable elements. Returns None if `self` is empty,
+    /// or contains only incomparable elements.
+    /// 
+    /// # Example
+    /// ```
+    /// use ndarray::{arr2, Array2};
+    /// use std::f64;
+    /// 
+    /// let a = arr2(&[[1., 2.], [3., 4.]]);
+    /// assert_eq!(a.nanmax(), Some(&4.));
+    /// 
+    /// let b = arr2(&[[1., f64::NAN], [3., f64::NAN]]);
+    /// assert_eq!(b.nanmax(), Some(&3.));
+    /// 
+    /// let c: Array2<f64> = arr2(&[[]]);
+    /// assert_eq!(c.nanmax(), None);
+    /// 
+    /// let d = arr2(&[[f64::NAN, f64::NAN],[f64::NAN, f64::NAN]]);
+    /// assert_eq!(d.nanmax(), None);
+    /// ```
+    pub fn nanmax(&self) -> Option<&A> 
+    where A: PartialOrd,
+    {
+        if let Some(first) = self.first() {
+            let max = self.fold(first, |acc, x| if acc == acc && !(x > acc) {acc} else {x});
+            if max == max {
+                Some(max)
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
+
+    /// Return a reference to a minimum of all values.
+    /// Return None if a comparison fails or if self is empty.
+    /// 
+    /// # Example
+    /// ```
+    /// use ndarray::{arr2, Array2};
+    /// use std::f64;
+    /// 
+    /// let a = arr2(&[[1., 2.], [3., 4.]]);
+    /// assert_eq!(a.min(), Some(&1.));
+    /// 
+    /// let b = arr2(&[[1., f64::NAN], [3., 4.]]);
+    /// assert_eq!(b.min(), None);
+    /// 
+    /// let c = arr2(&[[f64::NAN]]);
+    /// assert_eq!(c.min(), None);
+    /// 
+    /// let d: Array2<f64> = arr2(&[[]]);
+    /// assert_eq!(d.min(), None);
+    /// ```
+    pub fn min(&self) -> Option<&A>
+    where A: PartialOrd
+    {
+        if let Some(first) = self.first() {
+            let min = self.fold(first, |acc, x| if acc == acc && !(acc < x) {x} else {acc});
+            if min == min {
+                Some(min)
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }  
+
+    /// Return a reference to a minimum of all values, ignoring
+    /// incomparable elements. Returns None if `self` is empty,
+    /// or contains only incomparable elements.
+    /// 
+    /// # Example
+    /// ```
+    /// use ndarray::{arr2, Array2};
+    /// use std::f64;
+    /// 
+    /// let a = arr2(&[[1., 2.], [3., 4.]]);
+    /// assert_eq!(a.nanmin(), Some(&1.));
+    /// 
+    /// let b = arr2(&[[f64::NAN, 2.], [3., f64::NAN]]);
+    /// assert_eq!(b.nanmin(), Some(&2.));
+    /// 
+    /// let c: Array2<f64> = arr2(&[[]]);
+    /// assert_eq!(c.nanmin(), None);
+    /// 
+    /// let d = arr2(&[[f64::NAN, f64::NAN],[f64::NAN, f64::NAN]]);
+    /// assert_eq!(d.nanmin(), None);
+    /// ```
+    pub fn nanmin(&self) -> Option<&A> 
+    where A: PartialOrd,
+    {
+        if let Some(first) = self.first() {
+            let min = self.fold(first, |acc, x| if acc == acc && !(x < acc) {acc} else {x});
+            if min == min {
+                Some(min)
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
+
     /// Return sum along `axis`.
     ///
     /// ```
