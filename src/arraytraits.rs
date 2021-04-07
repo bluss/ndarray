@@ -183,7 +183,6 @@ where
     /// let array = Array::from_iter((0..5).map(|x| x * x));
     /// assert!(array == arr1(&[0, 1, 4, 9, 16]))
     /// ```
-    #[track_caller]
     fn from_iter<I>(iterable: I) -> ArrayBase<S, Ix1>
     where
         I: IntoIterator<Item = A>,
