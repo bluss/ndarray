@@ -47,7 +47,6 @@ where
 {
     type Output = S::Elem;
     #[inline]
-    #[track_caller]
     fn index(&self, index: I) -> &S::Elem {
         debug_bounds_check!(self, index);
         unsafe {
@@ -70,7 +69,6 @@ where
     S: DataMut,
 {
     #[inline]
-    #[track_caller]
     fn index_mut(&mut self, index: I) -> &mut S::Elem {
         debug_bounds_check!(self, index);
         unsafe {
