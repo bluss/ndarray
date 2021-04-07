@@ -11,8 +11,8 @@ use crate::slice::SliceArg;
 use crate::{Ix, Ixs, Slice, SliceInfoElem};
 use num_integer::div_floor;
 
-pub(crate) use self::axes::axes_of;
 pub use self::axes::{Axes, AxisDescription};
+pub(crate) use self::axes::axes_of;
 pub use self::axis::Axis;
 pub use self::broadcast::DimMax;
 pub use self::conversion::IntoDimension;
@@ -119,11 +119,10 @@ pub fn size_of_shape_checked<D: Dimension>(dim: &D) -> Result<usize, ShapeError>
 /// conditions 1 and 2 are sufficient to guarantee that the offset in units of
 /// `A` and in units of bytes between the least address and greatest address
 /// accessible by moving along all axes does not exceed `isize::MAX`.
-pub(crate) fn can_index_slice_with_strides<A, D: Dimension>(
-    data: &[A],
-    dim: &D,
-    strides: &Strides<D>,
-) -> Result<(), ShapeError> {
+pub(crate) fn can_index_slice_with_strides<A, D: Dimension>(data: &[A], dim: &D,
+                                                            strides: &Strides<D>)
+    -> Result<(), ShapeError> 
+{
     if let Strides::Custom(strides) = strides {
         can_index_slice(data, dim, strides)
     } else {
@@ -131,10 +130,9 @@ pub(crate) fn can_index_slice_with_strides<A, D: Dimension>(
     }
 }
 
-pub(crate) fn can_index_slice_not_custom<D: Dimension>(
-    data_len: usize,
-    dim: &D,
-) -> Result<(), ShapeError> {
+pub(crate) fn can_index_slice_not_custom<D: Dimension>(data_len: usize, dim: &D) 
+    -> Result<(), ShapeError> 
+{
     // Condition 1.
     let len = size_of_shape_checked(dim)?;
     // Condition 2.
@@ -165,11 +163,8 @@ where
     max_abs_offset_check_overflow_impl(mem::size_of::<A>(), dim, strides)
 }
 
-fn max_abs_offset_check_overflow_impl<D>(
-    elem_size: usize,
-    dim: &D,
-    strides: &D,
-) -> Result<usize, ShapeError>
+fn max_abs_offset_check_overflow_impl<D>(elem_size: usize, dim: &D, strides: &D) 
+    -> Result<usize, ShapeError>
 where
     D: Dimension,
 {

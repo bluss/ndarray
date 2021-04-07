@@ -6,12 +6,12 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use alloc::vec::Vec;
 use std::hash;
 use std::iter::FromIterator;
 use std::iter::IntoIterator;
 use std::mem;
 use std::ops::{Index, IndexMut};
+use alloc::vec::Vec;
 
 use crate::imp_prelude::*;
 use crate::iter::{Iter, IterMut};

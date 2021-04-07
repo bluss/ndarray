@@ -10,11 +10,11 @@
 
 use rawpointer::PointerExt;
 
+use std::mem::{self, size_of};
+use std::mem::MaybeUninit;
+use std::ptr::NonNull;
 use alloc::sync::Arc;
 use alloc::vec::Vec;
-use std::mem::MaybeUninit;
-use std::mem::{self, size_of};
-use std::ptr::NonNull;
 
 use crate::{ArrayBase, CowRepr, Dimension, OwnedArcRepr, OwnedRepr, RawViewRepr, ViewRepr};
 
@@ -247,7 +247,8 @@ unsafe impl<A> Data for OwnedArcRepr<A> {
         let data = Arc::try_unwrap(self_.data.0).ok().unwrap();
         // safe because data is equivalent
         unsafe {
-            ArrayBase::from_data_ptr(data, self_.ptr).with_strides_dim(self_.strides, self_.dim)
+            ArrayBase::from_data_ptr(data, self_.ptr)
+                .with_strides_dim(self_.strides, self_.dim)
         }
     }
 
@@ -410,7 +411,7 @@ unsafe impl<'a, A> DataMut for ViewRepr<&'a mut A> {}
 pub unsafe trait DataOwned: Data {
     /// Corresponding owned data with MaybeUninit elements
     type MaybeUninit: DataOwned<Elem = MaybeUninit<Self::Elem>>
-        + RawDataSubst<Self::Elem, Output = Self>;
+        + RawDataSubst<Self::Elem, Output=Self>;
     #[doc(hidden)]
     fn new(elements: Vec<Self::Elem>) -> Self;
 
@@ -544,7 +545,8 @@ unsafe impl<'a, A> Data for CowRepr<'a, A> {
             CowRepr::View(_) => self_.to_owned(),
             CowRepr::Owned(data) => unsafe {
                 // safe because the data is equivalent so ptr, dims remain valid
-                ArrayBase::from_data_ptr(data, self_.ptr).with_strides_dim(self_.strides, self_.dim)
+                ArrayBase::from_data_ptr(data, self_.ptr)
+                    .with_strides_dim(self_.strides, self_.dim)
             },
         }
     }
@@ -618,3 +620,4 @@ impl<'a, A: 'a, B: 'a> RawDataSubst<B> for ViewRepr<&'a mut A> {
         ViewRepr::new()
     }
 }
+

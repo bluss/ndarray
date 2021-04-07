@@ -11,13 +11,13 @@
 //!
 
 #![allow(clippy::match_wild_err_arm)]
-use alloc::vec;
-use alloc::vec::Vec;
 #[cfg(feature = "std")]
 use num_traits::Float;
 use num_traits::{One, Zero};
 use std::mem;
 use std::mem::MaybeUninit;
+use alloc::vec;
+use alloc::vec::Vec;
 
 use crate::dimension;
 use crate::dimension::offset_from_ptr_to_memory;
@@ -601,10 +601,8 @@ where
         array
     }
 
-    #[deprecated(
-        note = "This method is hard to use correctly. Use `uninit` instead.",
-        since = "0.15.0"
-    )]
+    #[deprecated(note = "This method is hard to use correctly. Use `uninit` instead.",
+                 since = "0.15.0")]
     /// Create an array with uninitalized elements, shape `shape`.
     ///
     /// Prefer to use [`uninit()`](ArrayBase::uninit) if possible, because it is
@@ -640,6 +638,7 @@ where
         v.set_len(size);
         Self::from_shape_vec_unchecked(shape, v)
     }
+
 }
 
 impl<S, A, D> ArrayBase<S, D>

@@ -450,7 +450,7 @@ mod assign_ops {
                 D: Dimension,
                 E: Dimension,
             {
-    #[track_caller]
+                #[track_caller]
                 fn $method(&mut self, rhs: &ArrayBase<S2, E>) {
                     self.zip_mut_with(rhs, |x, y| {
                         x.$method(y.clone());
