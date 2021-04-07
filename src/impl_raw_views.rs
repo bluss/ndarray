@@ -5,7 +5,7 @@ use crate::dimension::{self, stride_offset};
 use crate::extension::nonnull::nonnull_debug_checked_from_ptr;
 use crate::imp_prelude::*;
 use crate::is_aligned;
-use crate::shape_builder::{StrideShape, Strides};
+use crate::shape_builder::{Strides, StrideShape};
 
 impl<A, D> RawArrayView<A, D>
 where
@@ -17,7 +17,8 @@ where
     /// meet all of the invariants of the `ArrayBase` type.
     #[inline]
     pub(crate) unsafe fn new(ptr: NonNull<A>, dim: D, strides: D) -> Self {
-        RawArrayView::from_data_ptr(RawViewRepr::new(), ptr).with_strides_dim(strides, dim)
+        RawArrayView::from_data_ptr(RawViewRepr::new(), ptr)
+            .with_strides_dim(strides, dim)
     }
 
     unsafe fn new_(ptr: *const A, dim: D, strides: D) -> Self {
@@ -57,6 +58,7 @@ where
     ///     [`.offset()`] regardless of the starting point due to past offsets.
     ///
     /// * The product of non-zero axis lengths must not exceed `isize::MAX`.
+    ///
     ///
     /// * Strides must be non-negative.
     ///
@@ -160,7 +162,8 @@ where
     /// meet all of the invariants of the `ArrayBase` type.
     #[inline]
     pub(crate) unsafe fn new(ptr: NonNull<A>, dim: D, strides: D) -> Self {
-        RawArrayViewMut::from_data_ptr(RawViewRepr::new(), ptr).with_strides_dim(strides, dim)
+        RawArrayViewMut::from_data_ptr(RawViewRepr::new(), ptr)
+            .with_strides_dim(strides, dim)
     }
 
     unsafe fn new_(ptr: *mut A, dim: D, strides: D) -> Self {
@@ -200,6 +203,7 @@ where
     ///     [`.offset()`] regardless of the starting point due to past offsets.
     ///
     /// * The product of non-zero axis lengths must not exceed `isize::MAX`.
+    ///
     ///
     /// * Strides must be non-negative.
     ///

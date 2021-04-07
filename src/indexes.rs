@@ -7,8 +7,8 @@
 // except according to those terms.
 use super::Dimension;
 use crate::dimension::IntoDimension;
-use crate::split_at::SplitAt;
 use crate::zip::Offset;
+use crate::split_at::SplitAt;
 use crate::Axis;
 use crate::Layout;
 use crate::NdProducer;

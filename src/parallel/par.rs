@@ -13,9 +13,9 @@ use crate::iter::AxisChunksIter;
 use crate::iter::AxisChunksIterMut;
 use crate::iter::AxisIter;
 use crate::iter::AxisIterMut;
-use crate::split_at::SplitPreference;
 use crate::Dimension;
 use crate::{ArrayView, ArrayViewMut};
+use crate::split_at::SplitPreference;
 
 /// Parallel iterator wrapper.
 #[derive(Copy, Clone, Debug)]
@@ -292,14 +292,12 @@ pub(crate) struct ParallelSplits<P> {
 }
 
 impl<P> ParallelIterator for ParallelSplits<P>
-where
-    P: SplitPreference + Send,
+    where P: SplitPreference + Send,
 {
     type Item = P;
 
     fn drive_unindexed<C>(self, consumer: C) -> C::Result
-    where
-        C: UnindexedConsumer<Self::Item>,
+        where C: UnindexedConsumer<Self::Item>
     {
         bridge_unindexed(self, consumer)
     }
@@ -310,31 +308,27 @@ where
 }
 
 impl<P> UnindexedProducer for ParallelSplits<P>
-where
-    P: SplitPreference + Send,
+    where P: SplitPreference + Send,
 {
     type Item = P;
 
     fn split(self) -> (Self, Option<Self>) {
         if self.max_splits == 0 || !self.iter.can_split() {
-            return (self, None);
+            return (self, None)
         }
         let (a, b) = self.iter.split();
-        (
-            ParallelSplits {
-                iter: a,
-                max_splits: self.max_splits - 1,
-            },
-            Some(ParallelSplits {
-                iter: b,
-                max_splits: self.max_splits - 1,
-            }),
-        )
+        (ParallelSplits {
+            iter: a,
+            max_splits: self.max_splits - 1,
+        },
+        Some(ParallelSplits {
+            iter: b,
+            max_splits: self.max_splits - 1,
+        }))
     }
 
     fn fold_with<Fold>(self, folder: Fold) -> Fold
-    where
-        Fold: Folder<Self::Item>,
+        where Fold: Folder<Self::Item>,
     {
         folder.consume(self.iter)
     }

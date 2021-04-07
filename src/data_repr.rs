@@ -28,10 +28,10 @@ impl<A> OwnedRepr<A> {
         let len = v.len();
         let capacity = v.capacity();
         let ptr = nonnull::nonnull_from_vec_data(&mut v);
-        Self { 
-            ptr, 
-            len, 
-            capacity, 
+        Self {
+            ptr,
+            len,
+            capacity,
         }
     }
 
@@ -40,8 +40,8 @@ impl<A> OwnedRepr<A> {
     }
 
     pub(crate) fn as_slice(&self) -> &[A] {
-        unsafe { 
-            slice::from_raw_parts(self.ptr.as_ptr(), self.len) 
+        unsafe {
+            slice::from_raw_parts(self.ptr.as_ptr(), self.len)
         }
     }
 
@@ -78,14 +78,14 @@ impl<A> OwnedRepr<A> {
         let len = self.len;
         self.len = 0;
         self.capacity = 0;
-        unsafe { 
-            Vec::from_raw_parts(self.ptr.as_ptr(), len, capacity) 
+        unsafe {
+            Vec::from_raw_parts(self.ptr.as_ptr(), len, capacity)
         }
     }
 }
 
 impl<A> Clone for OwnedRepr<A>
-    where A: Clone,
+    where A: Clone
 {
     fn clone(&self) -> Self {
         Self::from(self.as_slice().to_owned())

@@ -121,7 +121,7 @@ pub fn size_of_shape_checked<D: Dimension>(dim: &D) -> Result<usize, ShapeError>
 /// accessible by moving along all axes does not exceed `isize::MAX`.
 pub(crate) fn can_index_slice_with_strides<A, D: Dimension>(data: &[A], dim: &D,
                                                             strides: &Strides<D>)
-    -> Result<(), ShapeError> 
+    -> Result<(), ShapeError>
 {
     if let Strides::Custom(strides) = strides {
         can_index_slice(data, dim, strides)
@@ -131,7 +131,7 @@ pub(crate) fn can_index_slice_with_strides<A, D: Dimension>(data: &[A], dim: &D,
 }
 
 pub(crate) fn can_index_slice_not_custom<D: Dimension>(data_len: usize, dim: &D) 
-    -> Result<(), ShapeError> 
+    -> Result<(), ShapeError>
 {
     // Condition 1.
     let len = size_of_shape_checked(dim)?;
@@ -163,7 +163,7 @@ where
     max_abs_offset_check_overflow_impl(mem::size_of::<A>(), dim, strides)
 }
 
-fn max_abs_offset_check_overflow_impl<D>(elem_size: usize, dim: &D, strides: &D) 
+fn max_abs_offset_check_overflow_impl<D>(elem_size: usize, dim: &D, strides: &D)
     -> Result<usize, ShapeError>
 where
     D: Dimension,

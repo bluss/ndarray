@@ -13,10 +13,10 @@ pub mod iter;
 mod lanes;
 mod windows;
 
-use alloc::vec::Vec;
 use std::iter::FromIterator;
 use std::marker::PhantomData;
 use std::ptr;
+use alloc::vec::Vec;
 
 use crate::Ix1;
 

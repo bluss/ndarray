@@ -34,6 +34,7 @@ use crate::StrideShape;
 use crate::{geomspace, linspace, logspace};
 use rawpointer::PointerExt;
 
+
 /// # Constructor Methods for Owned Arrays
 ///
 /// Note that the constructor methods apply to `Array` and `ArcArray`,

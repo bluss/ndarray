@@ -6,28 +6,28 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+use std::mem::{size_of, ManuallyDrop};
 use alloc::slice;
 use alloc::vec;
 use alloc::vec::Vec;
 use rawpointer::PointerExt;
-use std::mem::{size_of, ManuallyDrop};
 
 use crate::imp_prelude::*;
 
+use crate::{arraytraits, DimMax};
 use crate::argument_traits::AssignElem;
 use crate::dimension;
-use crate::dimension::broadcast::co_broadcast;
 use crate::dimension::IntoDimension;
 use crate::dimension::{
     abs_index, axes_of, do_slice, merge_axes, move_min_stride_axis_to_last,
     offset_from_ptr_to_memory, size_of_shape_checked, stride_offset, Axes,
 };
+use crate::dimension::broadcast::co_broadcast;
 use crate::error::{self, from_kind, ErrorKind, ShapeError};
-use crate::itertools::zip;
 use crate::math_cell::MathCell;
+use crate::itertools::zip;
 use crate::zip::{IntoNdProducer, Zip};
 use crate::AxisDescription;
-use crate::{arraytraits, DimMax};
 
 use crate::iter::{
     AxisChunksIter, AxisChunksIterMut, AxisIter, AxisIterMut, ExactChunks, ExactChunksMut,
@@ -248,7 +248,9 @@ where
     {
         let data = self.data.into_shared();
         // safe because: equivalent unmoved data, ptr and dims remain valid
-        unsafe { ArrayBase::from_data_ptr(data, self.ptr).with_strides_dim(self.strides, self.dim) }
+        unsafe { 
+            ArrayBase::from_data_ptr(data, self.ptr).with_strides_dim(self.strides, self.dim)
+        }
     }
 
     /// Returns a reference to the first element of the array, or `None` if it
@@ -485,17 +487,17 @@ where
         );
         let mut axis = 0;
         info.as_ref().iter().for_each(|&ax_info| match ax_info {
-            SliceInfoElem::Slice { start, end, step } => {
-                self.slice_axis_inplace(Axis(axis), Slice { start, end, step });
-                axis += 1;
-            }
-            SliceInfoElem::Index(index) => {
-                let i_usize = abs_index(self.len_of(Axis(axis)), index);
-                self.collapse_axis(Axis(axis), i_usize);
-                axis += 1;
-            }
-            SliceInfoElem::NewAxis => panic!("`slice_collapse` does not support `NewAxis`."),
-        });
+                SliceInfoElem::Slice { start, end, step } => {
+                    self.slice_axis_inplace(Axis(axis), Slice { start, end, step });
+                    axis += 1;
+                }
+                SliceInfoElem::Index(index) => {
+                    let i_usize = abs_index(self.len_of(Axis(axis)), index);
+                    self.collapse_axis(Axis(axis), i_usize);
+                    axis += 1;
+                }
+                SliceInfoElem::NewAxis => panic!("`slice_collapse` does not support `NewAxis`."),
+            });
         debug_assert_eq!(axis, self.ndim());
     }
 
@@ -731,10 +733,7 @@ where
                 return;
             }
         }
-        panic!(
-            "swap: index out of bounds for indices {:?} {:?}",
-            index1, index2
-        );
+        panic!("swap: index out of bounds for indices {:?} {:?}", index1, index2);
     }
 
     /// Swap elements *unchecked* at indices `index1` and `index2`.
@@ -854,7 +853,9 @@ where
         let dim = self.dim.remove_axis(axis);
         let strides = self.strides.remove_axis(axis);
         // safe because new dimension, strides allow access to a subset of old data
-        unsafe { self.with_strides_dim(strides, dim) }
+        unsafe {
+            self.with_strides_dim(strides, dim)
+        }
     }
 
     /// Selects `index` along the axis, collapsing the axis into length one.
@@ -945,7 +946,7 @@ where
         Lanes::new(self.view(), Axis(n - 1))
     }
 
-    #[deprecated(note = "Renamed to .rows()", since = "0.15.0")]
+    #[deprecated(note="Renamed to .rows()", since="0.15.0")]
     pub fn genrows(&self) -> Lanes<'_, A, D::Smaller>
     where
         S: Data,
@@ -968,7 +969,7 @@ where
         LanesMut::new(self.view_mut(), Axis(n - 1))
     }
 
-    #[deprecated(note = "Renamed to .rows_mut()", since = "0.15.0")]
+    #[deprecated(note="Renamed to .rows_mut()", since="0.15.0")]
     pub fn genrows_mut(&mut self) -> LanesMut<'_, A, D::Smaller>
     where
         S: DataMut,
@@ -1013,7 +1014,7 @@ where
     /// columns of the array. For a 2D array these are the regular columns.
     ///
     /// Renamed to `.columns()`
-    #[deprecated(note = "Renamed to .columns()", since = "0.15.0")]
+    #[deprecated(note="Renamed to .columns()", since="0.15.0")]
     pub fn gencolumns(&self) -> Lanes<'_, A, D::Smaller>
     where
         S: Data,
@@ -1036,7 +1037,7 @@ where
     /// columns of the array and yields mutable array views.
     ///
     /// Renamed to `.columns_mut()`
-    #[deprecated(note = "Renamed to .columns_mut()", since = "0.15.0")]
+    #[deprecated(note="Renamed to .columns_mut()", since="0.15.0")]
     pub fn gencolumns_mut(&mut self) -> LanesMut<'_, A, D::Smaller>
     where
         S: DataMut,
@@ -1346,7 +1347,9 @@ where
     pub fn into_diag(self) -> ArrayBase<S, Ix1> {
         let (len, stride) = self.diag_params();
         // safe because new len stride allows access to a subset of the current elements
-        unsafe { self.with_strides_dim(Ix1(stride as Ix), Ix1(len)) }
+        unsafe {
+            self.with_strides_dim(Ix1(stride as Ix), Ix1(len))
+        }
     }
 
     /// Try to make the array unshared.
@@ -1655,7 +1658,9 @@ where
         if self.is_standard_layout() {
             let cl = self.clone();
             // safe because array is contiguous and shape has equal number of elements
-            unsafe { cl.with_strides_dim(shape.default_strides(), shape) }
+            unsafe {
+                cl.with_strides_dim(shape.default_strides(), shape)
+            }
         } else {
             let v = self.iter().cloned().collect::<Vec<A>>();
             unsafe { ArrayBase::from_shape_vec_unchecked(shape, v) }
@@ -1704,11 +1709,9 @@ where
                 // safe because D == D2
                 let dim = unlimited_transmute::<D, D2>(self.dim);
                 let strides = unlimited_transmute::<D, D2>(self.strides);
-                return Ok(
-                    ArrayBase::from_data_ptr(self.data, self.ptr).with_strides_dim(strides, dim)
-                );
-            } else if D::NDIM == None || D2::NDIM == None {
-                // one is dynamic dim
+                return Ok(ArrayBase::from_data_ptr(self.data, self.ptr)
+                          .with_strides_dim(strides, dim));
+            } else if D::NDIM == None || D2::NDIM == None { // one is dynamic dim
                 // safe because dim, strides are equivalent under a different type
                 if let Some(dim) = D2::from_dimension(&self.dim) {
                     if let Some(strides) = D2::from_dimension(&self.strides) {
@@ -1819,41 +1822,28 @@ where
     ///
     /// Return `ShapeError` if their shapes can not be broadcast together.
     #[allow(clippy::type_complexity)]
-    pub(crate) fn broadcast_with<'a, 'b, B, S2, E>(
-        &'a self,
-        other: &'b ArrayBase<S2, E>,
-    ) -> Result<
-        (
-            ArrayView<'a, A, DimMaxOf<D, E>>,
-            ArrayView<'b, B, DimMaxOf<D, E>>,
-        ),
-        ShapeError,
-    >
+    pub(crate) fn broadcast_with<'a, 'b, B, S2, E>(&'a self, other: &'b ArrayBase<S2, E>) -> 
+        Result<(ArrayView<'a, A, DimMaxOf<D, E>>, ArrayView<'b, B, DimMaxOf<D, E>>), ShapeError>
     where
-        S: Data<Elem = A>,
-        S2: Data<Elem = B>,
+        S: Data<Elem=A>,
+        S2: Data<Elem=B>,
         D: Dimension + DimMax<E>,
         E: Dimension,
     {
         let shape = co_broadcast::<D, E, <D as DimMax<E>>::Output>(&self.dim, &other.dim)?;
         let view1 = if shape.slice() == self.dim.slice() {
-            self.view()
-                .into_dimensionality::<<D as DimMax<E>>::Output>()
-                .unwrap()
+            self.view().into_dimensionality::<<D as DimMax<E>>::Output>().unwrap()
         } else if let Some(view1) = self.broadcast(shape.clone()) {
             view1
         } else {
-            return Err(from_kind(ErrorKind::IncompatibleShape));
+            return Err(from_kind(ErrorKind::IncompatibleShape))
         };
         let view2 = if shape.slice() == other.dim.slice() {
-            other
-                .view()
-                .into_dimensionality::<<D as DimMax<E>>::Output>()
-                .unwrap()
+            other.view().into_dimensionality::<<D as DimMax<E>>::Output>().unwrap()
         } else if let Some(view2) = other.broadcast(shape) {
             view2
         } else {
-            return Err(from_kind(ErrorKind::IncompatibleShape));
+            return Err(from_kind(ErrorKind::IncompatibleShape))
         };
         Ok((view1, view2))
     }
@@ -1928,7 +1918,9 @@ where
             }
         }
         // safe because axis invariants are checked above; they are a permutation of the old
-        unsafe { self.with_strides_dim(new_strides, new_dim) }
+        unsafe {
+            self.with_strides_dim(new_strides, new_dim)
+        }
     }
 
     /// Transpose the array by reversing axes.
@@ -2115,7 +2107,8 @@ where
         P::Item: AssignElem<A>,
         A: Clone,
     {
-        Zip::from(self).map_assign_into(to, A::clone);
+        Zip::from(self)
+            .map_assign_into(to, A::clone);
     }
 
     /// Perform an elementwise assigment to `self` from element `x`.
@@ -2391,7 +2384,7 @@ where
     /// on each element.
     ///
     /// Elements are visited in arbitrary order.
-    #[deprecated(note = "Renamed to .for_each()", since = "0.15.0")]
+    #[deprecated(note="Renamed to .for_each()", since="0.15.0")]
     pub fn visit<'a, F>(&'a self, f: F)
     where
         F: FnMut(&'a A),
@@ -2546,6 +2539,7 @@ where
         });
     }
 }
+
 
 /// Transmute from A to B.
 ///

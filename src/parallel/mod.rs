@@ -122,9 +122,21 @@
 //! ```
 
 #[allow(unused_imports)] // used by rustdoc links
-use crate::iter::{AxisChunksIter, AxisChunksIterMut, AxisIter, AxisIterMut};
+use crate::{
+    ArcArray,
+    Array,
+    ArrayBase,
+    ArrayView,
+    ArrayViewMut,
+    Zip
+};
 #[allow(unused_imports)] // used by rustdoc links
-use crate::{ArcArray, Array, ArrayBase, ArrayView, ArrayViewMut, Zip};
+use crate::iter::{
+    AxisChunksIter,
+    AxisChunksIterMut,
+    AxisIter,
+    AxisIterMut
+};
 
 /// Into- traits for creating parallelized iterators and/or using [`par_azip!`]
 pub mod prelude {

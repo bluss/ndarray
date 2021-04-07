@@ -9,11 +9,11 @@
 use std::ptr::NonNull;
 
 use crate::dimension;
-use crate::dimension::offset_from_ptr_to_memory;
 use crate::error::ShapeError;
 use crate::extension::nonnull::nonnull_debug_checked_from_ptr;
 use crate::imp_prelude::*;
 use crate::{is_aligned, StrideShape};
+use crate::dimension::offset_from_ptr_to_memory;
 
 /// Methods for read-only array views.
 impl<'a, A, D> ArrayView<'a, A, D>
@@ -57,14 +57,7 @@ where
         let dim = shape.dim;
         dimension::can_index_slice_with_strides(xs, &dim, &shape.strides)?;
         let strides = shape.strides.strides_for_dim(&dim);
-        unsafe {
-            Ok(Self::new_(
-                xs.as_ptr()
-                    .offset(-offset_from_ptr_to_memory(&dim, &strides)),
-                dim,
-                strides,
-            ))
-        }
+        unsafe { Ok(Self::new_(xs.as_ptr().offset(-offset_from_ptr_to_memory(&dim, &strides)), dim, strides)) }
     }
 
     /// Create an `ArrayView<A, D>` from shape information and a raw pointer to
@@ -161,14 +154,7 @@ where
         let dim = shape.dim;
         dimension::can_index_slice_with_strides(xs, &dim, &shape.strides)?;
         let strides = shape.strides.strides_for_dim(&dim);
-        unsafe {
-            Ok(Self::new_(
-                xs.as_mut_ptr()
-                    .offset(-offset_from_ptr_to_memory(&dim, &strides)),
-                dim,
-                strides,
-            ))
-        }
+        unsafe { Ok(Self::new_(xs.as_mut_ptr().offset(-offset_from_ptr_to_memory(&dim, &strides)), dim, strides)) }
     }
 
     /// Create an `ArrayViewMut<A, D>` from shape information and a

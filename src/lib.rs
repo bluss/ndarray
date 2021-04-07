@@ -117,12 +117,13 @@
 //! For conversion between `ndarray`, [`nalgebra`](https://crates.io/crates/nalgebra) and
 //! [`image`](https://crates.io/crates/image) check out [`nshare`](https://crates.io/crates/nshare).
 
+
 extern crate alloc;
 
-#[cfg(not(feature = "std"))]
-extern crate core as std;
 #[cfg(feature = "std")]
 extern crate std;
+#[cfg(not(feature = "std"))]
+extern crate core as std;
 
 #[cfg(feature = "blas")]
 extern crate cblas_sys;
@@ -130,8 +131,8 @@ extern crate cblas_sys;
 #[cfg(feature = "docs")]
 pub mod doc;
 
-use alloc::sync::Arc;
 use std::marker::PhantomData;
+use alloc::sync::Arc;
 
 pub use crate::dimension::dim::*;
 pub use crate::dimension::{Axis, AxisDescription, Dimension, IntoDimension, RemoveAxis};
@@ -149,15 +150,15 @@ use crate::iterators::Baseiter;
 use crate::iterators::{ElementsBase, ElementsBaseMut, Iter, IterMut, Lanes};
 
 pub use crate::arraytraits::AsArray;
-pub use crate::linalg_traits::LinalgScalar;
 #[cfg(feature = "std")]
 pub use crate::linalg_traits::NdFloat;
+pub use crate::linalg_traits::LinalgScalar;
 
 #[allow(deprecated)] // stack_new_axis
 pub use crate::stacking::{concatenate, stack, stack_new_axis};
 
-pub use crate::impl_views::IndexLonger;
 pub use crate::math_cell::MathCell;
+pub use crate::impl_views::IndexLonger;
 pub use crate::shape_builder::{Shape, ShapeBuilder, StrideShape};
 
 #[macro_use]
@@ -179,7 +180,8 @@ mod data_traits;
 pub use crate::aliases::*;
 
 pub use crate::data_traits::{
-    Data, DataMut, DataOwned, DataShared, RawData, RawDataClone, RawDataMut, RawDataSubst,
+    Data, DataMut, DataOwned, DataShared, RawData, RawDataClone, RawDataMut,
+    RawDataSubst,
 };
 
 mod free_functions;
@@ -1520,8 +1522,8 @@ impl<'a, A> CowRepr<'a, A> {
 // Consider the doc effect of ordering modules here.
 mod impl_clone;
 
-mod impl_constructors;
 mod impl_internal_constructors;
+mod impl_constructors;
 
 mod impl_methods;
 mod impl_owned_array;
@@ -1582,7 +1584,9 @@ where
         let d = self.dim.try_remove_axis(axis);
         let s = self.strides.try_remove_axis(axis);
         // safe because new dimension, strides allow access to a subset of old data
-        unsafe { self.with_strides_dim(s, d) }
+        unsafe {
+            self.with_strides_dim(s, d)
+        }
     }
 
     /// n-d generalization of rows, just like inner iter

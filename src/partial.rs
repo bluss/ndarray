@@ -30,15 +30,15 @@ impl<T> Partial<T> {
     ///
     /// The Partial has an accessible length field which must only be modified in trusted code.
     pub(crate) unsafe fn new(ptr: *mut T) -> Self {
-        Self { ptr, len: 0 }
+        Self {
+            ptr,
+            len: 0
+        }
     }
 
     #[cfg(feature = "rayon")]
     pub(crate) fn stub() -> Self {
-        Self {
-            len: 0,
-            ptr: 0 as *mut _,
-        }
+        Self { len: 0, ptr: 0 as *mut _ }
     }
 
     #[cfg(feature = "rayon")]
@@ -75,7 +75,7 @@ impl<T> Partial<T> {
     }
 }
 
-unsafe impl<T> Send for Partial<T> where T: Send {}
+unsafe impl<T> Send for Partial<T> where T: Send { }
 
 impl<T> Drop for Partial<T> {
     fn drop(&mut self) {

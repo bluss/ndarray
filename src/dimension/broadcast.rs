@@ -92,13 +92,13 @@ impl_broadcast_distinct_fixed!(Ix6, IxDyn);
 #[cfg(feature = "std")]
 mod tests {
     use super::co_broadcast;
-    use crate::{Dimension, Dim, DimMax, ShapeError, ErrorKind, Ix0, IxDynImpl};
+    use crate::{Dimension, Dim, DimMax, ShapeError, Ix0, IxDynImpl, ErrorKind};
 
     #[test]
     fn test_broadcast_shape() {
         fn test_co<D1, D2>(
-            d1: &D1, 
-            d2: &D2, 
+            d1: &D1,
+            d2: &D2,
             r: Result<<D1 as DimMax<D2>>::Output, ShapeError>
         ) where
             D1: Dimension + DimMax<D2>,

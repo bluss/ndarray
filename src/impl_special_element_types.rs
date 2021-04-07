@@ -11,6 +11,7 @@ use std::mem::MaybeUninit;
 use crate::imp_prelude::*;
 use crate::RawDataSubst;
 
+
 /// Methods specific to arrays with `MaybeUninit` elements.
 ///
 /// ***See also all methods for [`ArrayBase`]***
@@ -18,7 +19,7 @@ use crate::RawDataSubst;
 /// [`ArrayBase`]: struct.ArrayBase.html
 impl<A, S, D> ArrayBase<S, D>
 where
-    S: RawDataSubst<A, Elem = MaybeUninit<A>>,
+    S: RawDataSubst<A, Elem=MaybeUninit<A>>,
     D: Dimension,
 {
     /// **Promise** that the array's elements are all fully initialized, and convert
@@ -34,12 +35,7 @@ where
     /// array's storage; it is for example possible to slice these in place, but that must
     /// only be done after all elements have been initialized.
     pub unsafe fn assume_init(self) -> ArrayBase<<S as RawDataSubst<A>>::Output, D> {
-        let ArrayBase {
-            data,
-            ptr,
-            dim,
-            strides,
-        } = self;
+        let ArrayBase { data, ptr, dim, strides } = self;
 
         // "transmute" from storage of MaybeUninit<A> to storage of A
         let data = S::data_subst(data);

@@ -11,15 +11,15 @@ use crate::numeric_util;
 
 use crate::{LinalgScalar, Zip};
 
-use alloc::vec::Vec;
 use std::any::TypeId;
+use alloc::vec::Vec;
 
-#[cfg(feature = "blas")]
-use libc::c_int;
 #[cfg(feature = "blas")]
 use std::cmp;
 #[cfg(feature = "blas")]
 use std::mem::swap;
+#[cfg(feature = "blas")]
+use libc::c_int;
 
 #[cfg(feature = "blas")]
 use cblas_sys as blas_sys;
@@ -608,7 +608,9 @@ pub fn general_mat_vec_mul<A, S1, S2, S3>(
     S3: DataMut<Elem = A>,
     A: LinalgScalar,
 {
-    unsafe { general_mat_vec_mul_impl(alpha, a, x, beta, y.raw_view_mut()) }
+    unsafe {
+        general_mat_vec_mul_impl(alpha, a, x, beta, y.raw_view_mut())
+    }
 }
 
 /// General matrix-vector multiplication
