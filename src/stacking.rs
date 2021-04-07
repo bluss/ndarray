@@ -202,7 +202,6 @@ where
 /// );
 /// # }
 /// ```
-#[track_caller]
 #[macro_export]
 macro_rules! stack {
     ($axis:expr, $( $array:expr ),+ ) => {
@@ -237,7 +236,6 @@ macro_rules! stack {
 /// );
 /// # }
 /// ```
-#[track_caller]
 #[macro_export]
 macro_rules! concatenate {
     ($axis:expr, $( $array:expr ),+ ) => {
@@ -272,7 +270,6 @@ macro_rules! concatenate {
 /// );
 /// # }
 /// ```
-#[track_caller]
 #[macro_export]
 #[deprecated(note = "Use under the name stack instead.", since = "0.15.0")]
 macro_rules! stack_new_axis {
