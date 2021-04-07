@@ -58,7 +58,7 @@ where
     ///     [`.offset()`] regardless of the starting point due to past offsets.
     ///
     /// * The product of non-zero axis lengths must not exceed `isize::MAX`.
-    ///
+    /// 
     /// * Strides must be non-negative.
     ///
     /// This function can use debug assertions to check some of these requirements,
@@ -200,7 +200,7 @@ where
     ///     address by moving along all axes must not exceed `isize::MAX`. This
     ///     constraint prevents overflow when calculating the `count` parameter to
     ///     [`.offset()`] regardless of the starting point due to past offsets.
-    ///
+    /// 
     /// * The product of non-zero axis lengths must not exceed `isize::MAX`.
     ///
     /// * Strides must be non-negative.

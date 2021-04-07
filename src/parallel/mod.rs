@@ -133,7 +133,7 @@ use crate::{
 #[allow(unused_imports)] // used by rustdoc links
 use crate::iter::{
     AxisIter,
-    AxisIterMut
+    AxisIterMut,
     AxisChunksIter,
     AxisChunksIterMut,
 };

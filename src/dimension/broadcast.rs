@@ -99,7 +99,7 @@ mod tests {
         fn test_co<D1, D2>(
             d1: &D1,
             d2: &D2,
-            r: Result<<D1 as DimMax<D2>>::Output, ShapeError>
+            r: Result<<D1 as DimMax<D2>>::Output, ShapeError>,
         ) where
             D1: Dimension + DimMax<D2>,
             D2: Dimension,
