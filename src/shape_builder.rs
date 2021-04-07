@@ -51,8 +51,7 @@ impl<D> Strides<D> {
             Strides::Custom(c) => {
                 debug_assert_eq!(c.ndim(), dim.ndim(),
                     "Custom strides given with {} dimensions, expected {}",
-                    c.ndim(), dim.ndim()
-                );
+                    c.ndim(), dim.ndim());
                 c
             }
         }
@@ -95,7 +94,7 @@ where
 {
     fn from(value: T) -> Self {
         let shape = value.into_shape();
-        let st = if shape.is_c() { 
+        let st = if shape.is_c() {
             Strides::C
         } else {
             Strides::F

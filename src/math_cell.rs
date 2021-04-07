@@ -55,13 +55,12 @@ impl<T> PartialEq for MathCell<T>
     }
 }
 
-impl<T> Eq for MathCell<T> 
+impl<T> Eq for MathCell<T>
     where T: Copy + Eq
 { }
 
 impl<T> PartialOrd for MathCell<T>
-where
-    T: Copy + PartialOrd
+    where T: Copy + PartialOrd
 {
     fn partial_cmp(&self, rhs: &Self) -> Option<Ordering> {
         self.get().partial_cmp(&rhs.get())

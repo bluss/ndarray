@@ -130,7 +130,7 @@ pub(crate) fn can_index_slice_with_strides<A, D: Dimension>(data: &[A], dim: &D,
     }
 }
 
-pub(crate) fn can_index_slice_not_custom<D: Dimension>(data_len: usize, dim: &D) 
+pub(crate) fn can_index_slice_not_custom<D: Dimension>(data_len: usize, dim: &D)
     -> Result<(), ShapeError>
 {
     // Condition 1.

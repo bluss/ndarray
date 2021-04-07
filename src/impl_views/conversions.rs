@@ -129,7 +129,7 @@ where
         // safety: valid because
         // A and MathCell<A> have the same representation
         // &'a mut T is interchangeable with &'a Cell<T> -- see method Cell::from_mut in std
-        unsafe { 
+        unsafe {
             self.into_raw_view_mut().cast::<MathCell<A>>().deref_into_view()
         }
     }

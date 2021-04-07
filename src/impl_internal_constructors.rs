@@ -22,7 +22,6 @@ where
     ///
     /// The caller must ensure that the data storage and pointer is valid.
     ///
-    ///
     /// See ArrayView::from_shape_ptr for general pointer validity documentation.
     pub(crate) unsafe fn from_data_ptr(data: S, ptr: NonNull<A>) -> Self {
         let array = ArrayBase {

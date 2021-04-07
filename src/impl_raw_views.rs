@@ -59,7 +59,6 @@ where
     ///
     /// * The product of non-zero axis lengths must not exceed `isize::MAX`.
     ///
-    ///
     /// * Strides must be non-negative.
     ///
     /// This function can use debug assertions to check some of these requirements,
@@ -203,7 +202,6 @@ where
     ///     [`.offset()`] regardless of the starting point due to past offsets.
     ///
     /// * The product of non-zero axis lengths must not exceed `isize::MAX`.
-    ///
     ///
     /// * Strides must be non-negative.
     ///

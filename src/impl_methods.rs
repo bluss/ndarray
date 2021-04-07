@@ -23,7 +23,7 @@ use crate::dimension::{
     offset_from_ptr_to_memory, size_of_shape_checked, stride_offset, Axes,
 };
 use crate::dimension::broadcast::co_broadcast;
-use crate::error::{self, from_kind, ErrorKind, ShapeError};
+use crate::error::{self, ErrorKind, ShapeError, from_kind};
 use crate::math_cell::MathCell;
 use crate::itertools::zip;
 use crate::zip::{IntoNdProducer, Zip};
@@ -248,7 +248,7 @@ where
     {
         let data = self.data.into_shared();
         // safe because: equivalent unmoved data, ptr and dims remain valid
-        unsafe { 
+        unsafe {
             ArrayBase::from_data_ptr(data, self.ptr).with_strides_dim(self.strides, self.dim)
         }
     }
@@ -1710,7 +1710,7 @@ where
                 let dim = unlimited_transmute::<D, D2>(self.dim);
                 let strides = unlimited_transmute::<D, D2>(self.strides);
                 return Ok(ArrayBase::from_data_ptr(self.data, self.ptr)
-                          .with_strides_dim(strides, dim));
+                            .with_strides_dim(strides, dim));
             } else if D::NDIM == None || D2::NDIM == None { // one is dynamic dim
                 // safe because dim, strides are equivalent under a different type
                 if let Some(dim) = D2::from_dimension(&self.dim) {
@@ -1822,7 +1822,7 @@ where
     ///
     /// Return `ShapeError` if their shapes can not be broadcast together.
     #[allow(clippy::type_complexity)]
-    pub(crate) fn broadcast_with<'a, 'b, B, S2, E>(&'a self, other: &'b ArrayBase<S2, E>) -> 
+    pub(crate) fn broadcast_with<'a, 'b, B, S2, E>(&'a self, other: &'b ArrayBase<S2, E>) ->
         Result<(ArrayView<'a, A, DimMaxOf<D, E>>, ArrayView<'b, B, DimMaxOf<D, E>>), ShapeError>
     where
         S: Data<Elem=A>,

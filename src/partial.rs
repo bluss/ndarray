@@ -32,7 +32,7 @@ impl<T> Partial<T> {
     pub(crate) unsafe fn new(ptr: *mut T) -> Self {
         Self {
             ptr,
-            len: 0
+            len: 0,
         }
     }
 

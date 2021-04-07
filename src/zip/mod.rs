@@ -422,7 +422,7 @@ where
     }
 
     #[cfg(feature = "rayon")]
-    pub(crate) fn uninitalized_for_current_layout<T>(&self) -> Array<MaybeUninit<T>, D> 
+    pub(crate) fn uninitalized_for_current_layout<T>(&self) -> Array<MaybeUninit<T>, D>
     {
         let is_f = self.prefer_f();
         Array::uninit(self.dimension.clone().set_f(is_f))
