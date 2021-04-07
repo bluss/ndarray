@@ -35,7 +35,7 @@ use crate::rand::seq::index;
 use crate::rand::{thread_rng, Rng, SeedableRng};
 
 use ndarray::{Array, Axis, RemoveAxis, ShapeBuilder};
-use ndarray::{ArrayBase, Data, DataOwned, Dimension, RawData};
+use ndarray::{ArrayBase, DataOwned, RawData, Data, Dimension};
 #[cfg(feature = "quickcheck")]
 use quickcheck::{Arbitrary, Gen};
 
