@@ -78,4 +78,3 @@ pub trait NdFloat:
 impl NdFloat for f32 {}
 #[cfg(feature = "std")]
 impl NdFloat for f64 {}
-

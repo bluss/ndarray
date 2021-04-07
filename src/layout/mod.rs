@@ -59,9 +59,8 @@ impl Layout {
     /// A simple "score" method which scores positive for preferring C-order, negative for F-order
     /// Subject to change when we can describe other layouts
     pub(crate) fn tendency(self) -> i32 {
-        (self.is(CORDER) as i32 - self.is(FORDER) as i32) +
-        (self.is(CPREFER) as i32 - self.is(FPREFER) as i32)
-
+        (self.is(CORDER) as i32 - self.is(FORDER) as i32)
+            + (self.is(CPREFER) as i32 - self.is(FPREFER) as i32)
     }
 }
 
@@ -69,7 +68,6 @@ pub const CORDER: u32 = 0b01;
 pub const FORDER: u32 = 0b10;
 pub const CPREFER: u32 = 0b0100;
 pub const FPREFER: u32 = 0b1000;
-
 
 #[cfg(test)]
 mod tests {

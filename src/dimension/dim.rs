@@ -6,12 +6,11 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-
-use std::fmt;
 use super::Dimension;
 use super::IntoDimension;
 use crate::itertools::zip;
 use crate::Ix;
+use std::fmt;
 
 /// Dimension description.
 ///

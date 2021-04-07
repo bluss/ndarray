@@ -6,20 +6,20 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+use alloc::vec::Vec;
 use std::fmt::Debug;
 use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign};
 use std::ops::{Index, IndexMut};
-use alloc::vec::Vec;
 
 use super::axes_of;
 use super::conversion::Convert;
 use super::ops::DimAdd;
 use super::{stride_offset, stride_offset_checked};
 use crate::itertools::{enumerate, zip};
-use crate::{Axis, DimMax};
 use crate::IntoDimension;
 use crate::RemoveAxis;
 use crate::{ArrayView1, ArrayViewMut1};
+use crate::{Axis, DimMax};
 use crate::{Dim, Ix, Ix0, Ix1, Ix2, Ix3, Ix4, Ix5, Ix6, IxDyn, IxDynImpl, Ixs};
 
 /// Array shape and index trait.
@@ -47,11 +47,11 @@ pub trait Dimension:
     + MulAssign
     + for<'x> MulAssign<&'x Self>
     + MulAssign<usize>
-    + DimMax<Ix0, Output=Self>
-    + DimMax<Self, Output=Self>
-    + DimMax<IxDyn, Output=IxDyn>
-    + DimMax<<Self as Dimension>::Smaller, Output=Self>
-    + DimMax<<Self as Dimension>::Larger, Output=<Self as Dimension>::Larger>
+    + DimMax<Ix0, Output = Self>
+    + DimMax<Self, Output = Self>
+    + DimMax<IxDyn, Output = IxDyn>
+    + DimMax<<Self as Dimension>::Smaller, Output = Self>
+    + DimMax<<Self as Dimension>::Larger, Output = <Self as Dimension>::Larger>
     + DimAdd<Self>
     + DimAdd<<Self as Dimension>::Smaller>
     + DimAdd<<Self as Dimension>::Larger>
@@ -170,6 +170,7 @@ pub trait Dimension:
     /// variable-size dimension representations.
     ///
     /// **Panics** if `Self` has a fixed size that is not `ndim`.
+    #[track_caller]
     fn zeros(ndim: usize) -> Self;
 
     #[doc(hidden)]

@@ -23,6 +23,7 @@ where
     /// let array = array![[1., 2.], [3., 4.]];
     /// assert_eq!(array.row(0), array![1., 2.]);
     /// ```
+    #[track_caller]
     pub fn row(&self, index: Ix) -> ArrayView1<'_, A>
     where
         S: Data,
@@ -40,6 +41,7 @@ where
     /// array.row_mut(0)[1] = 5.;
     /// assert_eq!(array, array![[1., 5.], [3., 4.]]);
     /// ```
+    #[track_caller]
     pub fn row_mut(&mut self, index: Ix) -> ArrayViewMut1<'_, A>
     where
         S: DataMut,
@@ -67,6 +69,7 @@ where
     /// let array = array![[1., 2.], [3., 4.]];
     /// assert_eq!(array.column(0), array![1., 3.]);
     /// ```
+    #[track_caller]
     pub fn column(&self, index: Ix) -> ArrayView1<'_, A>
     where
         S: Data,
@@ -84,6 +87,7 @@ where
     /// array.column_mut(0)[1] = 5.;
     /// assert_eq!(array, array![[1., 2.], [5., 4.]]);
     /// ```
+    #[track_caller]
     pub fn column_mut(&mut self, index: Ix) -> ArrayViewMut1<'_, A>
     where
         S: DataMut,

@@ -6,12 +6,12 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+use alloc::vec::Vec;
 use std::hash;
 use std::iter::FromIterator;
 use std::iter::IntoIterator;
 use std::mem;
 use std::ops::{Index, IndexMut};
-use alloc::vec::Vec;
 
 use crate::imp_prelude::*;
 use crate::iter::{Iter, IterMut};
@@ -47,6 +47,7 @@ where
 {
     type Output = S::Elem;
     #[inline]
+    #[track_caller]
     fn index(&self, index: I) -> &S::Elem {
         debug_bounds_check!(self, index);
         unsafe {
@@ -69,6 +70,7 @@ where
     S: DataMut,
 {
     #[inline]
+    #[track_caller]
     fn index_mut(&mut self, index: I) -> &mut S::Elem {
         debug_bounds_check!(self, index);
         unsafe {
@@ -161,6 +163,7 @@ where
     ///
     /// let array = Array::from(vec![1., 2., 3., 4.]);
     /// ```
+    #[track_caller]
     fn from(v: Vec<A>) -> Self {
         Self::from_vec(v)
     }
@@ -182,6 +185,7 @@ where
     /// let array = Array::from_iter((0..5).map(|x| x * x));
     /// assert!(array == arr1(&[0, 1, 4, 9, 16]))
     /// ```
+    #[track_caller]
     fn from_iter<I>(iterable: I) -> ArrayBase<S, Ix1>
     where
         I: IntoIterator<Item = A>,
@@ -299,6 +303,7 @@ where
     /// Create a one-dimensional read-only array view of the data in `slice`.
     ///
     /// **Panics** if the slice length is greater than `isize::MAX`.
+    #[track_caller]
     fn from(slice: &'a Slice) -> Self {
         let xs = slice.as_ref();
         if mem::size_of::<A>() == 0 {
@@ -331,6 +336,7 @@ where
     /// Create a one-dimensional read-write array view of the data in `slice`.
     ///
     /// **Panics** if the slice length is greater than `isize::MAX`.
+    #[track_caller]
     fn from(slice: &'a mut Slice) -> Self {
         let xs = slice.as_mut();
         if mem::size_of::<A>() == 0 {

@@ -13,14 +13,13 @@ pub struct Shape<D> {
 }
 
 #[derive(Copy, Clone, Debug)]
-pub(crate) enum Contiguous { }
+pub(crate) enum Contiguous {}
 
 impl<D> Shape<D> {
     pub(crate) fn is_c(&self) -> bool {
         matches!(self.strides, Strides::C)
     }
 }
-
 
 /// An array shape of n dimensions in c-order, f-order or custom strides.
 #[derive(Copy, Clone, Debug)]
@@ -37,21 +36,26 @@ pub(crate) enum Strides<D> {
     /// Column-major ("F"-order)
     F,
     /// Custom strides
-    Custom(D)
+    Custom(D),
 }
 
 impl<D> Strides<D> {
     /// Return strides for `dim` (computed from dimension if c/f, else return the custom stride)
     pub(crate) fn strides_for_dim(self, dim: &D) -> D
-        where D: Dimension
+    where
+        D: Dimension,
     {
         match self {
             Strides::C => dim.default_strides(),
             Strides::F => dim.fortran_strides(),
             Strides::Custom(c) => {
-                debug_assert_eq!(c.ndim(), dim.ndim(),
+                debug_assert_eq!(
+                    c.ndim(),
+                    dim.ndim(),
                     "Custom strides given with {} dimensions, expected {}",
-                    c.ndim(), dim.ndim());
+                    c.ndim(),
+                    dim.ndim()
+                );
                 c
             }
         }
@@ -94,11 +98,7 @@ where
 {
     fn from(value: T) -> Self {
         let shape = value.into_shape();
-        let st = if shape.is_c() {
-            Strides::C
-        } else {
-            Strides::F
-        };
+        let st = if shape.is_c() { Strides::C } else { Strides::F };
         StrideShape {
             strides: st,
             dim: shape.dim,

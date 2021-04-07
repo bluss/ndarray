@@ -7,8 +7,8 @@
 // except according to those terms.
 
 //! Methods for one-dimensional arrays.
-use alloc::vec::Vec;
 use crate::imp_prelude::*;
+use alloc::vec::Vec;
 
 /// # Methods For 1-D Arrays
 impl<A, S> ArrayBase<S, Ix1>

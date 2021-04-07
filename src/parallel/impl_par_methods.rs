@@ -1,9 +1,9 @@
-use crate::{Array, ArrayBase, DataMut, Dimension, IntoNdProducer, NdProducer, Zip};
 use crate::AssignElem;
+use crate::{Array, ArrayBase, DataMut, Dimension, IntoNdProducer, NdProducer, Zip};
 
-use crate::parallel::prelude::*;
-use crate::parallel::par::ParallelSplits;
 use super::send_producer::SendProducer;
+use crate::parallel::par::ParallelSplits;
+use crate::parallel::prelude::*;
 
 use crate::partial::Partial;
 

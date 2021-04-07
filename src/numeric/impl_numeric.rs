@@ -51,7 +51,7 @@ where
     /// Return the sum of all elements in the array.
     ///
     /// *This method has been renamed to `.sum()`*
-    #[deprecated(note="renamed to `sum`", since="0.15.0")]
+    #[deprecated(note = "renamed to `sum`", since = "0.15.0")]
     pub fn scalar_sum(&self) -> A
     where
         A: Clone + Add<Output = A> + num_traits::Zero,
@@ -72,6 +72,7 @@ where
     /// **Panics** if `A::from_usize()` fails to convert the number of elements in the array.
     ///
     /// [arithmetic mean]: https://en.wikipedia.org/wiki/Arithmetic_mean
+    #[track_caller]
     pub fn mean(&self) -> Option<A>
     where
         A: Clone + FromPrimitive + Add<Output = A> + Div<Output = A> + Zero,
@@ -152,6 +153,7 @@ where
     /// let var = a.var(1.);
     /// assert_abs_diff_eq!(var, 6.7331, epsilon = 1e-4);
     /// ```
+    #[track_caller]
     #[cfg(feature = "std")]
     pub fn var(&self, ddof: A) -> A
     where
@@ -217,6 +219,7 @@ where
     /// let stddev = a.std(1.);
     /// assert_abs_diff_eq!(stddev, 2.59483, epsilon = 1e-4);
     /// ```
+    #[track_caller]
     #[cfg(feature = "std")]
     pub fn std(&self, ddof: A) -> A
     where
@@ -241,6 +244,7 @@ where
     /// ```
     ///
     /// **Panics** if `axis` is out of bounds.
+    #[track_caller]
     pub fn sum_axis(&self, axis: Axis) -> Array<A, D::Smaller>
     where
         A: Clone + Zero + Add<Output = A>,
@@ -283,6 +287,7 @@ where
     ///     a.mean_axis(Axis(0)).unwrap().mean_axis(Axis(0)).unwrap() == aview0(&3.5)
     /// );
     /// ```
+    #[track_caller]
     pub fn mean_axis(&self, axis: Axis) -> Option<Array<A, D::Smaller>>
     where
         A: Clone + Zero + FromPrimitive + Add<Output = A> + Div<Output = A>,
@@ -341,6 +346,7 @@ where
     /// let var = a.var_axis(Axis(0), 1.);
     /// assert_eq!(var, aview1(&[4., 4.]));
     /// ```
+    #[track_caller]
     #[cfg(feature = "std")]
     pub fn var_axis(&self, axis: Axis, ddof: A) -> Array<A, D::Smaller>
     where
@@ -410,6 +416,7 @@ where
     /// let stddev = a.std_axis(Axis(0), 1.);
     /// assert_eq!(stddev, aview1(&[2., 2.]));
     /// ```
+    #[track_caller]
     #[cfg(feature = "std")]
     pub fn std_axis(&self, axis: Axis, ddof: A) -> Array<A, D::Smaller>
     where

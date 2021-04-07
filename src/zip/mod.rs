@@ -14,16 +14,16 @@ mod ndproducer;
 use std::mem::MaybeUninit;
 
 use crate::imp_prelude::*;
+use crate::partial::Partial;
 use crate::AssignElem;
 use crate::IntoDimension;
 use crate::Layout;
-use crate::partial::Partial;
 
 use crate::indexes::{indices, Indices};
 use crate::layout::{CORDER, FORDER};
-use crate::split_at::{SplitPreference, SplitAt};
+use crate::split_at::{SplitAt, SplitPreference};
 
-pub use self::ndproducer::{NdProducer, IntoNdProducer, Offset};
+pub use self::ndproducer::{IntoNdProducer, NdProducer, Offset};
 
 /// Return if the expression is a break value.
 macro_rules! fold_while {
@@ -48,6 +48,7 @@ where
     /// Broadcast the array to the new dimensions `shape`.
     ///
     /// ***Panics*** if broadcasting isn’t possible.
+    #[track_caller]
     fn broadcast_unwrap(self, shape: E) -> Self::Output;
     private_decl! {}
 }
@@ -194,7 +195,6 @@ pub struct Zip<Parts, D> {
     layout_tendency: i32,
 }
 
-
 impl<P, D> Zip<(P,), D>
 where
     D: Dimension,
@@ -264,6 +264,7 @@ where
     /// Return the length of `axis`
     ///
     /// ***Panics*** if `axis` is out of bounds.
+    #[track_caller]
     fn len_of(&self, axis: Axis) -> usize {
         self.dimension[axis.index()]
     }
@@ -277,16 +278,14 @@ where
     /// others.
     fn max_stride_axis(&self) -> Axis {
         let i = if self.prefer_f() {
-            self
-                .dimension
+            self.dimension
                 .slice()
                 .iter()
                 .rposition(|&len| len > 1)
                 .unwrap_or(self.dimension.ndim() - 1)
         } else {
             /* corder or default */
-            self
-                .dimension
+            self.dimension
                 .slice()
                 .iter()
                 .position(|&len| len > 1)
@@ -323,9 +322,7 @@ where
         let size = self.dimension.size();
         let ptrs = self.parts.as_ptr();
         let inner_strides = self.parts.contiguous_stride();
-        unsafe {
-            self.inner(acc, ptrs, inner_strides, size, &mut function)
-        }
+        unsafe { self.inner(acc, ptrs, inner_strides, size, &mut function) }
     }
 
     /// The innermost loop of the Zip for_each methods
@@ -336,11 +333,17 @@ where
     /// `strides`: strides for the elements in this stretch
     /// `len`: number of elements
     /// `function`: closure
-    unsafe fn inner<F, Acc>(&self, mut acc: Acc, ptr: P::Ptr, strides: P::Stride,
-                            len: usize, function: &mut F) -> FoldWhile<Acc>
+    unsafe fn inner<F, Acc>(
+        &self,
+        mut acc: Acc,
+        ptr: P::Ptr,
+        strides: P::Stride,
+        len: usize,
+        function: &mut F,
+    ) -> FoldWhile<Acc>
     where
         F: FnMut(Acc, P::Item) -> FoldWhile<Acc>,
-        P: ZippableTuple
+        P: ZippableTuple,
     {
         let mut i = 0;
         while i < len {
@@ -350,7 +353,6 @@ where
         }
         FoldWhile::Continue(acc)
     }
-
 
     fn for_each_core_strided<F, Acc>(&mut self, acc: Acc, function: F) -> FoldWhile<Acc>
     where
@@ -408,7 +410,8 @@ where
             loop {
                 unsafe {
                     let ptr = self.parts.uget_ptr(&index);
-                    acc = fold_while![self.inner(acc, ptr, inner_strides, inner_len, &mut function)];
+                    acc =
+                        fold_while![self.inner(acc, ptr, inner_strides, inner_len, &mut function)];
                 }
 
                 if !self.dimension.next_for_f(&mut index) {
@@ -420,8 +423,7 @@ where
     }
 
     #[cfg(feature = "rayon")]
-    pub(crate) fn uninitalized_for_current_layout<T>(&self) -> Array<MaybeUninit<T>, D>
-    {
+    pub(crate) fn uninitalized_for_current_layout<T>(&self) -> Array<MaybeUninit<T>, D> {
         let is_f = self.prefer_f();
         Array::uninit(self.dimension.clone().set_f(is_f))
     }
@@ -648,6 +650,7 @@ macro_rules! map_impl {
             /// Include the producer `p` in the Zip.
             ///
             /// ***Panics*** if `p`’s shape doesn’t match the Zip’s exactly.
+    #[track_caller]
             pub fn and<P>(self, p: P) -> Zip<($($p,)* P::Output, ), D>
                 where P: IntoNdProducer<Dim=D>,
             {
@@ -661,6 +664,7 @@ macro_rules! map_impl {
             /// If their shapes disagree, `rhs` is broadcast to the shape of `self`.
             ///
             /// ***Panics*** if broadcasting isn’t possible.
+    #[track_caller]
             pub fn and_broadcast<'a, P, D2, Elem>(self, p: P)
                 -> Zip<($($p,)* ArrayView<'a, Elem, D>, ), D>
                 where P: IntoNdProducer<Dim=D2, Output=ArrayView<'a, Elem, D2>, Item=&'a Elem>,

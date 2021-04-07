@@ -11,8 +11,8 @@ use crate::slice::SliceArg;
 use crate::{Ix, Ixs, Slice, SliceInfoElem};
 use num_integer::div_floor;
 
-pub use self::axes::{Axes, AxisDescription};
 pub(crate) use self::axes::axes_of;
+pub use self::axes::{Axes, AxisDescription};
 pub use self::axis::Axis;
 pub use self::broadcast::DimMax;
 pub use self::conversion::IntoDimension;
@@ -119,10 +119,11 @@ pub fn size_of_shape_checked<D: Dimension>(dim: &D) -> Result<usize, ShapeError>
 /// conditions 1 and 2 are sufficient to guarantee that the offset in units of
 /// `A` and in units of bytes between the least address and greatest address
 /// accessible by moving along all axes does not exceed `isize::MAX`.
-pub(crate) fn can_index_slice_with_strides<A, D: Dimension>(data: &[A], dim: &D,
-                                                            strides: &Strides<D>)
-    -> Result<(), ShapeError>
-{
+pub(crate) fn can_index_slice_with_strides<A, D: Dimension>(
+    data: &[A],
+    dim: &D,
+    strides: &Strides<D>,
+) -> Result<(), ShapeError> {
     if let Strides::Custom(strides) = strides {
         can_index_slice(data, dim, strides)
     } else {
@@ -130,9 +131,10 @@ pub(crate) fn can_index_slice_with_strides<A, D: Dimension>(data: &[A], dim: &D,
     }
 }
 
-pub(crate) fn can_index_slice_not_custom<D: Dimension>(data_len: usize, dim: &D)
-    -> Result<(), ShapeError>
-{
+pub(crate) fn can_index_slice_not_custom<D: Dimension>(
+    data_len: usize,
+    dim: &D,
+) -> Result<(), ShapeError> {
     // Condition 1.
     let len = size_of_shape_checked(dim)?;
     // Condition 2.
@@ -163,8 +165,11 @@ where
     max_abs_offset_check_overflow_impl(mem::size_of::<A>(), dim, strides)
 }
 
-fn max_abs_offset_check_overflow_impl<D>(elem_size: usize, dim: &D, strides: &D)
-    -> Result<usize, ShapeError>
+fn max_abs_offset_check_overflow_impl<D>(
+    elem_size: usize,
+    dim: &D,
+    strides: &D,
+) -> Result<usize, ShapeError>
 where
     D: Dimension,
 {
@@ -306,11 +311,13 @@ pub trait DimensionExt {
     /// Get the dimension at `axis`.
     ///
     /// *Panics* if `axis` is out of bounds.
+    #[track_caller]
     fn axis(&self, axis: Axis) -> Ix;
 
     /// Set the dimension at `axis`.
     ///
     /// *Panics* if `axis` is out of bounds.
+    #[track_caller]
     fn set_axis(&mut self, axis: Axis, value: Ix);
 }
 
@@ -345,6 +352,7 @@ impl<'a> DimensionExt for [Ix] {
 /// available.
 ///
 /// **Panics** if `index` is larger than the size of the axis
+#[track_caller]
 // FIXME: Move to Dimension trait
 pub fn do_collapse_axis<D: Dimension>(
     dims: &mut D,
@@ -381,6 +389,7 @@ pub fn abs_index(len: Ix, index: Ixs) -> Ix {
 /// The return value is (start, end, step).
 ///
 /// **Panics** if stride is 0 or if any index is out of bounds.
+#[track_caller]
 fn to_abs_slice(axis_len: usize, slice: Slice) -> (usize, usize, isize) {
     let Slice { start, end, step } = slice;
     let start = abs_index(axis_len, start);
@@ -420,6 +429,7 @@ pub fn offset_from_ptr_to_memory<D: Dimension>(dim: &D, strides: &D) -> isize {
 /// Modify dimension, stride and return data pointer offset
 ///
 /// **Panics** if stride is 0 or if any index is out of bounds.
+#[track_caller]
 pub fn do_slice(dim: &mut usize, stride: &mut usize, slice: Slice) -> isize {
     let (start, end, step) = to_abs_slice(*dim, slice);
 

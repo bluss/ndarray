@@ -112,12 +112,11 @@ where
     where
         A: RelativeEq<S2::Elem>,
         A::Epsilon: Clone,
-        S2: Data
+        S2: Data,
     {
         <Self as RelativeEq<_>>::relative_eq(self, other, epsilon, max_relative)
     }
 }
-
 
 #[cfg(test)]
 mod tests {

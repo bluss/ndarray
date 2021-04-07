@@ -62,6 +62,7 @@ pub trait IndexLonger<I> {
     /// [1]: struct.ArrayBase.html#method.get
     ///
     /// **Panics** if index is out of bounds.
+    #[track_caller]
     fn index(self, index: I) -> Self::Output;
 
     /// Get a reference of a element through the view.
@@ -77,6 +78,7 @@ pub trait IndexLonger<I> {
     /// [2]: struct.ArrayBase.html#method.get_mut
     ///
     /// **Panics** if index is out of bounds.
+    #[track_caller]
     fn get(self, index: I) -> Option<Self::Output>;
 
     /// Get a reference of a element through the view without boundary check
@@ -116,6 +118,7 @@ where
     /// [1]: struct.ArrayBase.html#method.get
     ///
     /// **Panics** if index is out of bounds.
+    #[track_caller]
     fn index(self, index: I) -> &'a A {
         debug_bounds_check!(self, index);
         unsafe { &*self.get_ptr(index).unwrap_or_else(|| array_out_of_bounds()) }
@@ -161,6 +164,7 @@ where
     /// [1]: struct.ArrayBase.html#method.get_mut
     ///
     /// **Panics** if index is out of bounds.
+    #[track_caller]
     fn index(mut self, index: I) -> &'a mut A {
         debug_bounds_check!(self, index);
         unsafe {

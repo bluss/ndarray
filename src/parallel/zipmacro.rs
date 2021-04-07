@@ -52,6 +52,7 @@
 ///     assert_eq!(a, &b + &c);
 /// }
 /// ```
+#[track_caller]
 macro_rules! par_azip {
     ($($t:tt)*) => {
         $crate::azip!(@build par_for_each $($t)*)

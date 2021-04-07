@@ -41,6 +41,7 @@ impl<'a, A, D: Dimension> ExactChunks<'a, A, D> {
     /// Creates a new exact chunks producer.
     ///
     /// **Panics** if any chunk dimension is zero
+    #[track_caller]
     pub(crate) fn new<E>(mut a: ArrayView<'a, A, D>, chunk: E) -> Self
     where
         E: IntoDimension<Dim = D>,
@@ -131,6 +132,7 @@ impl<'a, A, D: Dimension> ExactChunksMut<'a, A, D> {
     /// Creates a new exact chunks producer.
     ///
     /// **Panics** if any chunk dimension is zero
+    #[track_caller]
     pub(crate) fn new<E>(mut a: ArrayViewMut<'a, A, D>, chunk: E) -> Self
     where
         E: IntoDimension<Dim = D>,

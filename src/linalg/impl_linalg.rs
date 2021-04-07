@@ -11,15 +11,15 @@ use crate::numeric_util;
 
 use crate::{LinalgScalar, Zip};
 
-use std::any::TypeId;
 use alloc::vec::Vec;
+use std::any::TypeId;
 
+#[cfg(feature = "blas")]
+use libc::c_int;
 #[cfg(feature = "blas")]
 use std::cmp;
 #[cfg(feature = "blas")]
 use std::mem::swap;
-#[cfg(feature = "blas")]
-use libc::c_int;
 
 #[cfg(feature = "blas")]
 use cblas_sys as blas_sys;
@@ -57,6 +57,7 @@ where
     /// **Panics** if the array shapes are incompatible.<br>
     /// *Note:* If enabled, uses blas `dot` for elements of `f32, f64` when memory
     /// layout allows.
+    #[track_caller]
     pub fn dot<Rhs>(&self, rhs: &Rhs) -> <Self as Dot<Rhs>>::Output
     where
         Self: Dot<Rhs>,
@@ -183,6 +184,7 @@ where
     /// **Panics** if the arrays are not of the same length.<br>
     /// *Note:* If enabled, uses blas `dot` for elements of `f32, f64` when memory
     /// layout allows.
+    #[track_caller]
     fn dot(&self, rhs: &ArrayBase<S2, Ix1>) -> A {
         self.dot_impl(rhs)
     }
@@ -205,6 +207,7 @@ where
     /// Return a result array with shape *N*.
     ///
     /// **Panics** if shapes are incompatible.
+    #[track_caller]
     fn dot(&self, rhs: &ArrayBase<S2, Ix2>) -> Array<A, Ix1> {
         rhs.t().dot(self)
     }
@@ -243,6 +246,7 @@ where
     ///                         [2., 3.]])
     /// );
     /// ```
+    #[track_caller]
     pub fn dot<Rhs>(&self, rhs: &Rhs) -> <Self as Dot<Rhs>>::Output
     where
         Self: Dot<Rhs>,
@@ -318,6 +322,7 @@ where
     A: LinalgScalar,
 {
     type Output = Array<A, Ix1>;
+    #[track_caller]
     fn dot(&self, rhs: &ArrayBase<S2, Ix1>) -> Array<A, Ix1> {
         let ((m, a), n) = (self.dim(), rhs.dim());
         if a != n {
@@ -345,6 +350,7 @@ where
     /// If their shapes disagree, `rhs` is broadcast to the shape of `self`.
     ///
     /// **Panics** if broadcasting isn’t possible.
+    #[track_caller]
     pub fn scaled_add<S2, E>(&mut self, alpha: A, rhs: &ArrayBase<S2, E>)
     where
         S: DataMut,
@@ -556,6 +562,7 @@ fn mat_mul_general<A>(
 /// *Note:* If enabled, uses blas `gemm` for elements of `f32, f64` when memory
 /// layout allows.  The default matrixmultiply backend is otherwise used for
 /// `f32, f64` for all memory layouts.
+#[track_caller]
 pub fn general_mat_mul<A, S1, S2, S3>(
     alpha: A,
     a: &ArrayBase<S1, Ix2>,
@@ -587,6 +594,7 @@ pub fn general_mat_mul<A, S1, S2, S3>(
 /// ***Panics*** if array shapes are not compatible<br>
 /// *Note:* If enabled, uses blas `gemv` for elements of `f32, f64` when memory
 /// layout allows.
+#[track_caller]
 #[allow(clippy::collapsible_if)]
 pub fn general_mat_vec_mul<A, S1, S2, S3>(
     alpha: A,
@@ -600,9 +608,7 @@ pub fn general_mat_vec_mul<A, S1, S2, S3>(
     S3: DataMut<Elem = A>,
     A: LinalgScalar,
 {
-    unsafe {
-        general_mat_vec_mul_impl(alpha, a, x, beta, y.raw_view_mut())
-    }
+    unsafe { general_mat_vec_mul_impl(alpha, a, x, beta, y.raw_view_mut()) }
 }
 
 /// General matrix-vector multiplication
@@ -700,6 +706,7 @@ fn same_type<A: 'static, B: 'static>() -> bool {
 // Read pointer to type `A` as type `B`.
 //
 // **Panics** if `A` and `B` are not the same type
+#[track_caller]
 fn cast_as<A: 'static + Copy, B: 'static + Copy>(a: &A) -> B {
     assert!(same_type::<A, B>());
     unsafe { ::std::ptr::read(a as *const _ as *const B) }

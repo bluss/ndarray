@@ -1,4 +1,3 @@
-
 use crate::imp_prelude::*;
 use crate::{Layout, NdProducer};
 use std::ops::{Deref, DerefMut};
@@ -6,27 +5,34 @@ use std::ops::{Deref, DerefMut};
 /// An NdProducer that is unconditionally `Send`.
 #[repr(transparent)]
 pub(crate) struct SendProducer<T> {
-    inner: T
+    inner: T,
 }
 
 impl<T> SendProducer<T> {
     /// Create an unconditionally `Send` ndproducer from the producer
-    pub(crate) unsafe fn new(producer: T) -> Self { Self { inner: producer } }
+    pub(crate) unsafe fn new(producer: T) -> Self {
+        Self { inner: producer }
+    }
 }
 
-unsafe impl<P> Send for SendProducer<P> { }
+unsafe impl<P> Send for SendProducer<P> {}
 
 impl<P> Deref for SendProducer<P> {
     type Target = P;
-    fn deref(&self) -> &P { &self.inner }
+    fn deref(&self) -> &P {
+        &self.inner
+    }
 }
 
 impl<P> DerefMut for SendProducer<P> {
-    fn deref_mut(&mut self) -> &mut P { &mut self.inner }
+    fn deref_mut(&mut self) -> &mut P {
+        &mut self.inner
+    }
 }
 
 impl<P: NdProducer> NdProducer for SendProducer<P>
-    where P: NdProducer,
+where
+    P: NdProducer,
 {
     type Item = P::Item;
     type Dim = P::Dim;
@@ -80,4 +86,3 @@ impl<P: NdProducer> NdProducer for SendProducer<P>
         (Self { inner: a }, Self { inner: b })
     }
 }
-

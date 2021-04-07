@@ -97,6 +97,7 @@
 /// }
 ///
 /// ```
+#[track_caller]
 #[macro_export]
 macro_rules! azip {
     // Indexed with a single producer

@@ -35,7 +35,7 @@ use crate::rand::seq::index;
 use crate::rand::{thread_rng, Rng, SeedableRng};
 
 use ndarray::{Array, Axis, RemoveAxis, ShapeBuilder};
-use ndarray::{ArrayBase, DataOwned, RawData, Data, Dimension};
+use ndarray::{ArrayBase, Data, DataOwned, Dimension, RawData};
 #[cfg(feature = "quickcheck")]
 use quickcheck::{Arbitrary, Gen};
 
@@ -84,6 +84,7 @@ where
     /// // [[  8.6900,   6.9824,   3.8922,   6.5861,   2.4890],
     /// //  [  0.0914,   5.5186,   5.8135,   5.2361,   3.1879]]
     /// # }
+    #[track_caller]
     fn random<Sh, IdS>(shape: Sh, distribution: IdS) -> ArrayBase<S, D>
     where
         IdS: Distribution<S::Elem>,
@@ -114,6 +115,7 @@ where
     /// // [[  8.6900,   6.9824,   3.8922,   6.5861,   2.4890],
     /// //  [  0.0914,   5.5186,   5.8135,   5.2361,   3.1879]]
     /// # }
+    #[track_caller]
     fn random_using<Sh, IdS, R>(shape: Sh, distribution: IdS, rng: &mut R) -> ArrayBase<S, D>
     where
         IdS: Distribution<S::Elem>,
@@ -162,6 +164,7 @@ where
     /// // ]
     /// # }
     /// ```
+    #[track_caller]
     fn sample_axis(&self, axis: Axis, n_samples: usize, strategy: SamplingStrategy) -> Array<A, D>
     where
         A: Copy,
@@ -216,6 +219,7 @@ where
     /// // ]
     /// # }
     /// ```
+    #[track_caller]
     fn sample_axis_using<R>(
         &self,
         axis: Axis,
@@ -333,7 +337,7 @@ fn get_rng() -> SmallRng {
 /// //  [ -0.6810,   0.1678,  -0.9487,   0.3150,   1.2981]]
 /// # }
 #[derive(Copy, Clone, Debug)]
-#[deprecated(since="0.14.0", note="Redundant with rand 0.8")]
+#[deprecated(since = "0.14.0", note = "Redundant with rand 0.8")]
 pub struct F32<S>(pub S);
 
 #[allow(deprecated)]

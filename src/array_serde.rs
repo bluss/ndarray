@@ -9,10 +9,10 @@ use serde::de::{self, MapAccess, SeqAccess, Visitor};
 use serde::ser::{SerializeSeq, SerializeStruct};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use std::fmt;
-use std::marker::PhantomData;
 use alloc::format;
 use alloc::vec::Vec;
+use std::fmt;
+use std::marker::PhantomData;
 
 use crate::imp_prelude::*;
 

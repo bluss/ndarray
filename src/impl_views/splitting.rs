@@ -87,6 +87,7 @@ where
     ///         0     1      2      3     4  indices →
     ///                                      along Axis(1)
     /// ```
+    #[track_caller]
     pub fn split_at(self, axis: Axis, index: Ix) -> (Self, Self) {
         unsafe {
             let (left, right) = self.into_raw_view().split_at(axis, index);
@@ -104,6 +105,7 @@ where
     /// before the split and one mutable view after the split.
     ///
     /// **Panics** if `axis` or `index` is out of bounds.
+    #[track_caller]
     pub fn split_at(self, axis: Axis, index: Ix) -> (Self, Self) {
         unsafe {
             let (left, right) = self.into_raw_view_mut().split_at(axis, index);
@@ -128,6 +130,7 @@ where
     /// * if any of the views would intersect (i.e. if any element would appear in multiple slices)
     /// * if an index is out of bounds or step size is zero
     /// * if `D` is `IxDyn` and `info` does not match the number of array axes
+    #[track_caller]
     pub fn multi_slice_move<M>(self, info: M) -> M::Output
     where
         M: MultiSliceArg<'a, A, D>,

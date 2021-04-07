@@ -78,6 +78,7 @@ impl<F> ExactSizeIterator for Geomspace<F> where Geomspace<F>: Iterator {}
 /// `end / start` must be positive.
 ///
 /// **Panics** if converting `n - 1` to type `F` fails.
+#[track_caller]
 #[inline]
 pub fn geomspace<F>(a: F, b: F, n: usize) -> Option<Geomspace<F>>
 where

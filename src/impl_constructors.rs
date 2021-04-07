@@ -11,13 +11,13 @@
 //!
 
 #![allow(clippy::match_wild_err_arm)]
+use alloc::vec;
+use alloc::vec::Vec;
 #[cfg(feature = "std")]
 use num_traits::Float;
 use num_traits::{One, Zero};
 use std::mem;
 use std::mem::MaybeUninit;
-use alloc::vec;
-use alloc::vec::Vec;
 
 use crate::dimension;
 use crate::dimension::offset_from_ptr_to_memory;
@@ -33,7 +33,6 @@ use crate::StrideShape;
 #[cfg(feature = "std")]
 use crate::{geomspace, linspace, logspace};
 use rawpointer::PointerExt;
-
 
 /// # Constructor Methods for Owned Arrays
 ///
@@ -54,6 +53,7 @@ where
     ///
     /// let array = Array::from_vec(vec![1., 2., 3., 4.]);
     /// ```
+    #[track_caller]
     pub fn from_vec(v: Vec<A>) -> Self {
         if mem::size_of::<A>() == 0 {
             assert!(
@@ -73,6 +73,7 @@ where
     ///
     /// let array = Array::from_iter(0..10);
     /// ```
+    #[track_caller]
     #[allow(clippy::should_implement_trait)]
     pub fn from_iter<I: IntoIterator<Item = A>>(iterable: I) -> Self {
         Self::from_vec(iterable.into_iter().collect())
@@ -95,6 +96,7 @@ where
     /// let array = Array::linspace(0., 1., 5);
     /// assert!(array == arr1(&[0.0, 0.25, 0.5, 0.75, 1.0]))
     /// ```
+    #[track_caller]
     #[cfg(feature = "std")]
     pub fn linspace(start: A, end: A, n: usize) -> Self
     where
@@ -114,6 +116,7 @@ where
     /// let array = Array::range(0., 5., 1.);
     /// assert!(array == arr1(&[0., 1., 2., 3., 4.]))
     /// ```
+    #[track_caller]
     #[cfg(feature = "std")]
     pub fn range(start: A, end: A, step: A) -> Self
     where
@@ -143,6 +146,7 @@ where
     /// assert_abs_diff_eq!(array, arr1(&[-1e3, -1e2, -1e1, -1e0]));
     /// # }
     /// ```
+    #[track_caller]
     #[cfg(feature = "std")]
     pub fn logspace(base: A, start: A, end: A, n: usize) -> Self
     where
@@ -178,6 +182,7 @@ where
     /// #
     /// # example().unwrap();
     /// ```
+    #[track_caller]
     #[cfg(feature = "std")]
     pub fn geomspace(start: A, end: A, n: usize) -> Option<Self>
     where
@@ -195,6 +200,7 @@ where
     /// Create an identity matrix of size `n` (square 2D array).
     ///
     /// **Panics** if `n * n` would overflow `isize`.
+    #[track_caller]
     pub fn eye(n: Ix) -> Self
     where
         S: DataMut,
@@ -218,6 +224,7 @@ where
     /// let array = Array2::from_diag(&diag);
     /// assert_eq!(array, arr2(&[[1, 0], [0, 2]]));
     /// ```
+    #[track_caller]
     pub fn from_diag<S2>(diag: &ArrayBase<S2, Ix1>) -> Self
     where
         A: Clone + Zero,
@@ -299,6 +306,7 @@ where
     /// let b = Array::from_elem((2, 2, 2).f(), 1.);
     /// assert!(b.strides() == &[1, 2, 4]);
     /// ```
+    #[track_caller]
     pub fn from_elem<Sh>(shape: Sh, elem: A) -> Self
     where
         A: Clone,
@@ -313,6 +321,7 @@ where
     /// Create an array with zeros, shape `shape`.
     ///
     /// **Panics** if the product of non-zero axis lengths overflows `isize`.
+    #[track_caller]
     pub fn zeros<Sh>(shape: Sh) -> Self
     where
         A: Clone + Zero,
@@ -324,6 +333,7 @@ where
     /// Create an array with ones, shape `shape`.
     ///
     /// **Panics** if the product of non-zero axis lengths overflows `isize`.
+    #[track_caller]
     pub fn ones<Sh>(shape: Sh) -> Self
     where
         A: Clone + One,
@@ -335,6 +345,7 @@ where
     /// Create an array with default values, shape `shape`
     ///
     /// **Panics** if the product of non-zero axis lengths overflows `isize`.
+    #[track_caller]
     pub fn default<Sh>(shape: Sh) -> Self
     where
         A: Default,
@@ -353,6 +364,7 @@ where
     /// for example if they are identical or random.
     ///
     /// **Panics** if the product of non-zero axis lengths overflows `isize`.
+    #[track_caller]
     pub fn from_shape_simple_fn<Sh, F>(shape: Sh, mut f: F) -> Self
     where
         Sh: ShapeBuilder<Dim = D>,
@@ -384,6 +396,7 @@ where
     ///            [3, 6, 9]])
     /// );
     /// ```
+    #[track_caller]
     pub fn from_shape_fn<Sh, F>(shape: Sh, f: F) -> Self
     where
         Sh: ShapeBuilder<Dim = D>,
@@ -540,6 +553,7 @@ where
     ///     }
     /// }
     /// ```
+    #[track_caller]
     pub fn uninit<Sh>(shape: Sh) -> ArrayBase<S::MaybeUninit, D>
     where
         Sh: ShapeBuilder<Dim = D>,
@@ -573,6 +587,7 @@ where
     /// The whole of the array must be initialized before it is converted
     /// using [`.assume_init()`] or otherwise traversed.
     ///
+    #[track_caller]
     pub(crate) fn build_uninit<Sh, F>(shape: Sh, builder: F) -> ArrayBase<S::MaybeUninit, D>
     where
         Sh: ShapeBuilder<Dim = D>,
@@ -586,8 +601,10 @@ where
         array
     }
 
-    #[deprecated(note = "This method is hard to use correctly. Use `uninit` instead.",
-                 since = "0.15.0")]
+    #[deprecated(
+        note = "This method is hard to use correctly. Use `uninit` instead.",
+        since = "0.15.0"
+    )]
     /// Create an array with uninitalized elements, shape `shape`.
     ///
     /// Prefer to use [`uninit()`](ArrayBase::uninit) if possible, because it is
@@ -611,6 +628,7 @@ where
     /// (Also note that the constructors `from_shape_vec` and
     /// `from_shape_vec_unchecked` allow the user yet more control, in the sense
     /// that Arrays can be created from arbitrary vectors.)
+    #[track_caller]
     pub unsafe fn uninitialized<Sh>(shape: Sh) -> Self
     where
         A: Copy,
@@ -622,7 +640,6 @@ where
         v.set_len(size);
         Self::from_shape_vec_unchecked(shape, v)
     }
-
 }
 
 impl<S, A, D> ArrayBase<S, D>

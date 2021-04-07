@@ -76,6 +76,7 @@ impl<F> ExactSizeIterator for Logspace<F> where Logspace<F>: Iterator {}
 /// `f32` or `f64`.
 ///
 /// **Panics** if converting `n - 1` to type `F` fails.
+#[track_caller]
 #[inline]
 pub fn logspace<F>(base: F, a: F, b: F, n: usize) -> Logspace<F>
 where

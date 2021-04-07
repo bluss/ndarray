@@ -1,6 +1,5 @@
-
-use alloc::vec::Vec;
 use crate::imp_prelude::*;
+use alloc::vec::Vec;
 
 /// Methods specific to `Array0`.
 ///
