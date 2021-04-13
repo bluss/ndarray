@@ -6,10 +6,10 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use std::mem::{forget, size_of};
 use alloc::slice;
 use alloc::vec;
 use alloc::vec::Vec;
+use std::mem::{forget, size_of};
 
 use crate::imp_prelude::*;
 use crate::{dimension, ArcArray1, ArcArray2};
@@ -87,22 +87,16 @@ pub fn aview1<A>(xs: &[A]) -> ArrayView1<'_, A> {
 
 /// Create a two-dimensional array view with elements borrowing `xs`.
 ///
-/// **Panics** if the product of non-zero axis lengths overflows `isize`. (This
-/// can only occur when `V` is zero-sized.)
+/// **Panics** if the product of non-zero axis lengths overflows `isize`.
 pub fn aview2<A, V: FixedInitializer<Elem = A>>(xs: &[V]) -> ArrayView2<'_, A> {
     let cols = V::len();
     let rows = xs.len();
     let dim = Ix2(rows, cols);
-    if size_of::<V>() == 0 {
-        dimension::size_of_shape_checked(&dim)
-            .expect("Product of non-zero axis lengths must not overflow isize.");
-    }
-    // `rows` is guaranteed to fit in `isize` because we've checked the ZST
-    // case and slices never contain > `isize::MAX` bytes. `cols` is guaranteed
-    // to fit in `isize` because `FixedInitializer` is not implemented for any
-    // array lengths > `isize::MAX`. `cols * rows` is guaranteed to fit in
-    // `isize` because we've checked the ZST case and slices never contain >
-    // `isize::MAX` bytes.
+    dimension::size_of_shape_checked(&dim)
+        .expect("Product of non-zero axis lengths must not overflow isize.");
+
+    // `cols * rows` is guaranteed to fit in `isize` because we checked that it fits in
+    // `isize::MAX`
     unsafe {
         let data = slice::from_raw_parts(xs.as_ptr() as *const A, cols * rows);
         ArrayView::from_shape_ptr(dim, data.as_ptr())
@@ -127,16 +121,14 @@ pub fn aview_mut1<A>(xs: &mut [A]) -> ArrayViewMut1<'_, A> {
 
 /// Create a two-dimensional read-write array view with elements borrowing `xs`.
 ///
-/// **Panics** if the product of non-zero axis lengths overflows `isize`. (This
-/// can only occur when `V` is zero-sized.)
+/// **Panics** if the product of non-zero axis lengths overflows `isize`.
 ///
 /// # Example
 ///
 /// ```
 /// use ndarray::aview_mut2;
 ///
-/// // The inner (nested) array must be of length 1 to 16, but the outer
-/// // can be of any length.
+/// // The inner (nested) and outer arrays can be of any length.
 /// let mut data = [[0.; 2]; 128];
 /// {
 ///     // Make a 128 x 2 mut array view then turn it into 2 x 128
@@ -152,16 +144,11 @@ pub fn aview_mut2<A, V: FixedInitializer<Elem = A>>(xs: &mut [V]) -> ArrayViewMu
     let cols = V::len();
     let rows = xs.len();
     let dim = Ix2(rows, cols);
-    if size_of::<V>() == 0 {
-        dimension::size_of_shape_checked(&dim)
-            .expect("Product of non-zero axis lengths must not overflow isize.");
-    }
-    // `rows` is guaranteed to fit in `isize` because we've checked the ZST
-    // case and slices never contain > `isize::MAX` bytes. `cols` is guaranteed
-    // to fit in `isize` because `FixedInitializer` is not implemented for any
-    // array lengths > `isize::MAX`. `cols * rows` is guaranteed to fit in
-    // `isize` because we've checked the ZST case and slices never contain >
-    // `isize::MAX` bytes.
+    dimension::size_of_shape_checked(&dim)
+        .expect("Product of non-zero axis lengths must not overflow isize.");
+
+    // `cols * rows` is guaranteed to fit in `isize` because we checked that it fits in
+    // `isize::MAX`
     unsafe {
         let data = slice::from_raw_parts_mut(xs.as_mut_ptr() as *mut A, cols * rows);
         ArrayViewMut::from_shape_ptr(dim, data.as_mut_ptr())
@@ -175,28 +162,17 @@ pub unsafe trait FixedInitializer {
     fn len() -> usize;
 }
 
-macro_rules! impl_arr_init {
-    (__impl $n: expr) => (
-        unsafe impl<T> FixedInitializer for [T;  $n] {
-            type Elem = T;
-            fn as_init_slice(&self) -> &[T] { self }
-            fn len() -> usize { $n }
-        }
-    );
-    () => ();
-    ($n: expr, $($m:expr,)*) => (
-        impl_arr_init!(__impl $n);
-        impl_arr_init!($($m,)*);
-    )
+unsafe impl<T, const N: usize> FixedInitializer for [T; N] {
+    type Elem = T;
 
+    fn as_init_slice(&self) -> &[T] {
+        self
+    }
+
+    fn len() -> usize {
+        N
+    }
 }
-
-// For implementors: If you ever implement `FixedInitializer` for array lengths
-// > `isize::MAX` (e.g. once Rust adds const generics), you must update
-// `aview2` and `aview_mut2` to perform the necessary checks. In particular,
-// the assumption that `cols` can never exceed `isize::MAX` would be incorrect.
-// (Consider e.g. `let xs: &[[i32; ::std::usize::MAX]] = &[]`.)
-impl_arr_init!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,);
 
 /// Create a two-dimensional array with elements from `xs`.
 ///
