@@ -6,16 +6,19 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+use alloc::vec::Vec;
 use std::hash;
 use std::iter::FromIterator;
 use std::iter::IntoIterator;
 use std::mem;
 use std::ops::{Index, IndexMut};
-use alloc::vec::Vec;
 
 use crate::imp_prelude::*;
-use crate::iter::{Iter, IterMut};
 use crate::NdIndex;
+use crate::{
+    aview_mut2,
+    iter::{Iter, IterMut},
+};
 
 use crate::numeric_util;
 use crate::{FoldWhile, Zip};
@@ -311,6 +314,14 @@ where
     }
 }
 
+/// Implementation of ArrayView2::from(&S) where S is a slice to a 2D array
+impl<'a, A, const N: usize> From<&'a [[A; N]]> for ArrayView<'a, A, Ix2> {
+    /// Create a two-dimensional read-only array view of the data in `slice`
+    fn from(slice: &'a [[A; N]]) -> Self {
+        aview2(slice)
+    }
+}
+
 /// Implementation of `ArrayView::from(&A)` where `A` is an array.
 impl<'a, A, S, D> From<&'a ArrayBase<S, D>> for ArrayView<'a, A, D>
 where
@@ -340,6 +351,14 @@ where
             );
         }
         unsafe { Self::from_shape_ptr(xs.len(), xs.as_mut_ptr()) }
+    }
+}
+
+/// Implementation of ArrayViewMut2::from(&S) where S is a slice to a 2D array
+impl<'a, A, const N: usize> From<&'a mut [[A; N]]> for ArrayViewMut<'a, A, Ix2> {
+    /// Create a two-dimensional read-write array view of the data in `slice`
+    fn from(slice: &'a mut [[A; N]]) -> Self {
+        aview_mut2(slice)
     }
 }
 
