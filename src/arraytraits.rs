@@ -161,7 +161,6 @@ where
     ///
     /// let array = Array::from(vec![1., 2., 3., 4.]);
     /// ```
-    #[track_caller]
     fn from(v: Vec<A>) -> Self {
         Self::from_vec(v)
     }
@@ -300,7 +299,6 @@ where
     /// Create a one-dimensional read-only array view of the data in `slice`.
     ///
     /// **Panics** if the slice length is greater than `isize::MAX`.
-    #[track_caller]
     fn from(slice: &'a Slice) -> Self {
         let xs = slice.as_ref();
         if mem::size_of::<A>() == 0 {
@@ -333,7 +331,6 @@ where
     /// Create a one-dimensional read-write array view of the data in `slice`.
     ///
     /// **Panics** if the slice length is greater than `isize::MAX`.
-    #[track_caller]
     fn from(slice: &'a mut Slice) -> Self {
         let xs = slice.as_mut();
         if mem::size_of::<A>() == 0 {

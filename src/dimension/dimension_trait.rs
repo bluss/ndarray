@@ -170,7 +170,6 @@ pub trait Dimension:
     /// variable-size dimension representations.
     ///
     /// **Panics** if `Self` has a fixed size that is not `ndim`.
-    #[track_caller]
     fn zeros(ndim: usize) -> Self;
 
     #[doc(hidden)]

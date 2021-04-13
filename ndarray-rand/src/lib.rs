@@ -84,7 +84,6 @@ where
     /// // [[  8.6900,   6.9824,   3.8922,   6.5861,   2.4890],
     /// //  [  0.0914,   5.5186,   5.8135,   5.2361,   3.1879]]
     /// # }
-    #[track_caller]
     fn random<Sh, IdS>(shape: Sh, distribution: IdS) -> ArrayBase<S, D>
     where
         IdS: Distribution<S::Elem>,
@@ -115,7 +114,6 @@ where
     /// // [[  8.6900,   6.9824,   3.8922,   6.5861,   2.4890],
     /// //  [  0.0914,   5.5186,   5.8135,   5.2361,   3.1879]]
     /// # }
-    #[track_caller]
     fn random_using<Sh, IdS, R>(shape: Sh, distribution: IdS, rng: &mut R) -> ArrayBase<S, D>
     where
         IdS: Distribution<S::Elem>,
@@ -164,7 +162,6 @@ where
     /// // ]
     /// # }
     /// ```
-    #[track_caller]
     fn sample_axis(&self, axis: Axis, n_samples: usize, strategy: SamplingStrategy) -> Array<A, D>
     where
         A: Copy,
@@ -219,7 +216,6 @@ where
     /// // ]
     /// # }
     /// ```
-    #[track_caller]
     fn sample_axis_using<R>(
         &self,
         axis: Axis,

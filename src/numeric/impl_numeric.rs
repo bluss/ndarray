@@ -72,7 +72,6 @@ where
     /// **Panics** if `A::from_usize()` fails to convert the number of elements in the array.
     ///
     /// [arithmetic mean]: https://en.wikipedia.org/wiki/Arithmetic_mean
-    #[track_caller]
     pub fn mean(&self) -> Option<A>
     where
         A: Clone + FromPrimitive + Add<Output = A> + Div<Output = A> + Zero,

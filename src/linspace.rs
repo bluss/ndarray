@@ -70,7 +70,6 @@ impl<F> ExactSizeIterator for Linspace<F> where Linspace<F>: Iterator {}
 /// `f32` or `f64`.
 ///
 /// **Panics** if converting `n - 1` to type `F` fails.
-#[track_caller]
 #[inline]
 pub fn linspace<F>(a: F, b: F, n: usize) -> Linspace<F>
 where
@@ -99,7 +98,6 @@ where
 /// `f32` or `f64`.
 ///
 /// **Panics** if converting `((b - a) / step).ceil()` to type `F` fails.
-#[track_caller]
 #[inline]
 pub fn range<F>(a: F, b: F, step: F) -> Linspace<F>
 where

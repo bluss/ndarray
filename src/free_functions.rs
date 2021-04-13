@@ -89,7 +89,6 @@ pub fn aview1<A>(xs: &[A]) -> ArrayView1<'_, A> {
 ///
 /// **Panics** if the product of non-zero axis lengths overflows `isize`. (This
 /// can only occur when `V` is zero-sized.)
-#[track_caller]
 pub fn aview2<A, V: FixedInitializer<Elem = A>>(xs: &[V]) -> ArrayView2<'_, A> {
     let cols = V::len();
     let rows = xs.len();
@@ -149,7 +148,6 @@ pub fn aview_mut1<A>(xs: &mut [A]) -> ArrayViewMut1<'_, A> {
 /// // look at the start of the result
 /// assert_eq!(&data[..3], [[1., -1.], [1., -1.], [1., -1.]]);
 /// ```
-#[track_caller]
 pub fn aview_mut2<A, V: FixedInitializer<Elem = A>>(xs: &mut [V]) -> ArrayViewMut2<'_, A> {
     let cols = V::len();
     let rows = xs.len();
@@ -225,7 +223,6 @@ where
     /// Converts the `Vec` of arrays to an owned 2-D array.
     ///
     /// **Panics** if the product of non-zero axis lengths overflows `isize`.
-    #[track_caller]
     fn from(mut xs: Vec<V>) -> Self {
         let dim = Ix2(xs.len(), V::len());
         let ptr = xs.as_mut_ptr();
@@ -257,7 +254,6 @@ where
     /// Converts the `Vec` of arrays to an owned 3-D array.
     ///
     /// **Panics** if the product of non-zero axis lengths overflows `isize`.
-    #[track_caller]
     fn from(mut xs: Vec<V>) -> Self {
         let dim = Ix3(xs.len(), V::len(), U::len());
         let ptr = xs.as_mut_ptr();
@@ -304,7 +300,6 @@ pub fn rcarr2<A: Clone, V: Clone + FixedInitializer<Elem = A>>(xs: &[V]) -> ArcA
 ///     a.shape() == [3, 2, 2]
 /// );
 /// ```
-#[track_caller]
 pub fn arr3<A: Clone, V: FixedInitializer<Elem = U>, U: FixedInitializer<Elem = A>>(
     xs: &[V],
 ) -> Array3<A>

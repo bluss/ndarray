@@ -708,7 +708,6 @@ fn same_type<A: 'static, B: 'static>() -> bool {
 // Read pointer to type `A` as type `B`.
 //
 // **Panics** if `A` and `B` are not the same type
-#[track_caller]
 fn cast_as<A: 'static + Copy, B: 'static + Copy>(a: &A) -> B {
     assert!(same_type::<A, B>());
     unsafe { ::std::ptr::read(a as *const _ as *const B) }

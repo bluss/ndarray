@@ -61,7 +61,6 @@ impl<A> OwnedRepr<A> {
     ///
     /// Caller must ensure the two types have the same representation.
     /// **Panics** if sizes don't match (which is not a sufficient check).
-    #[track_caller]
     pub(crate) unsafe fn data_subst<B>(self) -> OwnedRepr<B> {
         // necessary but not sufficient check
         assert_eq!(mem::size_of::<A>(), mem::size_of::<B>());
