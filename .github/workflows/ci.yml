@@ -21,7 +21,7 @@ jobs:
           - stable
           - beta
           - nightly
-          - 1.51.0  # Needed for const generics
+          - 1.51.0  # MSRV
 
     steps:
       - uses: actions/checkout@v2

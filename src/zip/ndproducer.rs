@@ -167,7 +167,7 @@ impl<'a, A: 'a> IntoNdProducer for &'a mut [A] {
     }
 }
 
-/// An one-dimensional array is an one-dimensional producer
+/// A one-dimensional array is a one-dimensional producer
 impl<'a, A: 'a, const N: usize> IntoNdProducer for &'a [A; N] {
     type Item = <Self::Output as NdProducer>::Item;
     type Dim = Ix1;
