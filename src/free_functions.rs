@@ -88,8 +88,8 @@ pub fn aview1<A>(xs: &[A]) -> ArrayView1<'_, A> {
 /// Create a two-dimensional array view with elements borrowing `xs`.
 ///
 /// **Panics** if the product of non-zero axis lengths overflows `isize`.
-pub fn aview2<A, V: FixedInitializer<Elem = A>>(xs: &[V]) -> ArrayView2<'_, A> {
-    let cols = V::len();
+pub fn aview2<A, const N: usize>(xs: &[[A; N]]) -> ArrayView2<'_, A> {
+    let cols = N;
     let rows = xs.len();
     let dim = Ix2(rows, cols);
     dimension::size_of_shape_checked(&dim)
@@ -140,8 +140,8 @@ pub fn aview_mut1<A>(xs: &mut [A]) -> ArrayViewMut1<'_, A> {
 /// // look at the start of the result
 /// assert_eq!(&data[..3], [[1., -1.], [1., -1.], [1., -1.]]);
 /// ```
-pub fn aview_mut2<A, V: FixedInitializer<Elem = A>>(xs: &mut [V]) -> ArrayViewMut2<'_, A> {
-    let cols = V::len();
+pub fn aview_mut2<A, const N: usize>(xs: &mut [[A; N]]) -> ArrayViewMut2<'_, A> {
+    let cols = N;
     let rows = xs.len();
     let dim = Ix2(rows, cols);
     dimension::size_of_shape_checked(&dim)
@@ -152,25 +152,6 @@ pub fn aview_mut2<A, V: FixedInitializer<Elem = A>>(xs: &mut [V]) -> ArrayViewMu
     unsafe {
         let data = slice::from_raw_parts_mut(xs.as_mut_ptr() as *mut A, cols * rows);
         ArrayViewMut::from_shape_ptr(dim, data.as_mut_ptr())
-    }
-}
-
-/// Fixed-size array used for array initialization
-pub unsafe trait FixedInitializer {
-    type Elem;
-    fn as_init_slice(&self) -> &[Self::Elem];
-    fn len() -> usize;
-}
-
-unsafe impl<T, const N: usize> FixedInitializer for [T; N] {
-    type Elem = T;
-
-    fn as_init_slice(&self) -> &[T] {
-        self
-    }
-
-    fn len() -> usize {
-        N
     }
 }
 
@@ -185,22 +166,16 @@ unsafe impl<T, const N: usize> FixedInitializer for [T; N] {
 ///     a.shape() == [2, 3]
 /// );
 /// ```
-pub fn arr2<A: Clone, V: FixedInitializer<Elem = A>>(xs: &[V]) -> Array2<A>
-where
-    V: Clone,
-{
+pub fn arr2<A: Clone, const N: usize>(xs: &[[A; N]]) -> Array2<A> {
     Array2::from(xs.to_vec())
 }
 
-impl<A, V> From<Vec<V>> for Array2<A>
-where
-    V: FixedInitializer<Elem = A>,
-{
+impl<A, const N: usize> From<Vec<[A; N]>> for Array2<A> {
     /// Converts the `Vec` of arrays to an owned 2-D array.
     ///
     /// **Panics** if the product of non-zero axis lengths overflows `isize`.
-    fn from(mut xs: Vec<V>) -> Self {
-        let dim = Ix2(xs.len(), V::len());
+    fn from(mut xs: Vec<[A; N]>) -> Self {
+        let dim = Ix2(xs.len(), N);
         let ptr = xs.as_mut_ptr();
         let cap = xs.capacity();
         let expand_len = dimension::size_of_shape_checked(&dim)
@@ -209,12 +184,12 @@ where
         unsafe {
             let v = if size_of::<A>() == 0 {
                 Vec::from_raw_parts(ptr as *mut A, expand_len, expand_len)
-            } else if V::len() == 0 {
+            } else if N == 0 {
                 Vec::new()
             } else {
                 // Guaranteed not to overflow in this case since A is non-ZST
                 // and Vec never allocates more than isize bytes.
-                let expand_cap = cap * V::len();
+                let expand_cap = cap * N;
                 Vec::from_raw_parts(ptr as *mut A, expand_len, expand_cap)
             };
             ArrayBase::from_shape_vec_unchecked(dim, v)
@@ -222,16 +197,12 @@ where
     }
 }
 
-impl<A, V, U> From<Vec<V>> for Array3<A>
-where
-    V: FixedInitializer<Elem = U>,
-    U: FixedInitializer<Elem = A>,
-{
+impl<A, const N: usize, const M: usize> From<Vec<[[A; M]; N]>> for Array3<A> {
     /// Converts the `Vec` of arrays to an owned 3-D array.
     ///
     /// **Panics** if the product of non-zero axis lengths overflows `isize`.
-    fn from(mut xs: Vec<V>) -> Self {
-        let dim = Ix3(xs.len(), V::len(), U::len());
+    fn from(mut xs: Vec<[[A; M]; N]>) -> Self {
+        let dim = Ix3(xs.len(), N, M);
         let ptr = xs.as_mut_ptr();
         let cap = xs.capacity();
         let expand_len = dimension::size_of_shape_checked(&dim)
@@ -240,12 +211,12 @@ where
         unsafe {
             let v = if size_of::<A>() == 0 {
                 Vec::from_raw_parts(ptr as *mut A, expand_len, expand_len)
-            } else if V::len() == 0 || U::len() == 0 {
+            } else if N == 0 || M == 0 {
                 Vec::new()
             } else {
                 // Guaranteed not to overflow in this case since A is non-ZST
                 // and Vec never allocates more than isize bytes.
-                let expand_cap = cap * V::len() * U::len();
+                let expand_cap = cap * N * M;
                 Vec::from_raw_parts(ptr as *mut A, expand_len, expand_cap)
             };
             ArrayBase::from_shape_vec_unchecked(dim, v)
@@ -255,7 +226,7 @@ where
 
 /// Create a two-dimensional array with elements from `xs`.
 ///
-pub fn rcarr2<A: Clone, V: Clone + FixedInitializer<Elem = A>>(xs: &[V]) -> ArcArray2<A> {
+pub fn rcarr2<A: Clone, const N: usize>(xs: &[[A; N]]) -> ArcArray2<A> {
     arr2(xs).into_shared()
 }
 
@@ -276,23 +247,11 @@ pub fn rcarr2<A: Clone, V: Clone + FixedInitializer<Elem = A>>(xs: &[V]) -> ArcA
 ///     a.shape() == [3, 2, 2]
 /// );
 /// ```
-pub fn arr3<A: Clone, V: FixedInitializer<Elem = U>, U: FixedInitializer<Elem = A>>(
-    xs: &[V],
-) -> Array3<A>
-where
-    V: Clone,
-    U: Clone,
-{
+pub fn arr3<A: Clone, const N: usize, const M: usize>(xs: &[[[A; M]; N]]) -> Array3<A> {
     Array3::from(xs.to_vec())
 }
 
 /// Create a three-dimensional array with elements from `xs`.
-pub fn rcarr3<A: Clone, V: FixedInitializer<Elem = U>, U: FixedInitializer<Elem = A>>(
-    xs: &[V],
-) -> ArcArray<A, Ix3>
-where
-    V: Clone,
-    U: Clone,
-{
+pub fn rcarr3<A: Clone, const N: usize, const M: usize>(xs: &[[[A; M]; N]]) -> ArcArray<A, Ix3> {
     arr3(xs).into_shared()
 }
