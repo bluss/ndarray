@@ -87,13 +87,16 @@ pub fn aview1<A>(xs: &[A]) -> ArrayView1<'_, A> {
 
 /// Create a two-dimensional array view with elements borrowing `xs`.
 ///
-/// **Panics** if the product of non-zero axis lengths overflows `isize`.
+/// **Panics** if the product of non-zero axis lengths overflows `isize` (This can only occur if A
+/// is zero-sized because slices cannot contain more than `isize::MAX` number of bytes).
 pub fn aview2<A, const N: usize>(xs: &[[A; N]]) -> ArrayView2<'_, A> {
     let cols = N;
     let rows = xs.len();
     let dim = Ix2(rows, cols);
-    dimension::size_of_shape_checked(&dim)
-        .expect("Product of non-zero axis lengths must not overflow isize.");
+    if size_of::<A>() == 0 {
+        dimension::size_of_shape_checked(&dim)
+            .expect("Product of non-zero axis lengths must not overflow isize.");
+    }
 
     // `cols * rows` is guaranteed to fit in `isize` because we checked that it fits in
     // `isize::MAX`
@@ -121,7 +124,8 @@ pub fn aview_mut1<A>(xs: &mut [A]) -> ArrayViewMut1<'_, A> {
 
 /// Create a two-dimensional read-write array view with elements borrowing `xs`.
 ///
-/// **Panics** if the product of non-zero axis lengths overflows `isize`.
+/// **Panics** if the product of non-zero axis lengths overflows `isize` (This can only occur if A
+/// is zero-sized because slices cannot contain more than `isize::MAX` number of bytes).
 ///
 /// # Example
 ///
@@ -144,8 +148,10 @@ pub fn aview_mut2<A, const N: usize>(xs: &mut [[A; N]]) -> ArrayViewMut2<'_, A> 
     let cols = N;
     let rows = xs.len();
     let dim = Ix2(rows, cols);
-    dimension::size_of_shape_checked(&dim)
-        .expect("Product of non-zero axis lengths must not overflow isize.");
+    if size_of::<A>() == 0 {
+        dimension::size_of_shape_checked(&dim)
+            .expect("Product of non-zero axis lengths must not overflow isize.");
+    }
 
     // `cols * rows` is guaranteed to fit in `isize` because we checked that it fits in
     // `isize::MAX`
