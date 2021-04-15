@@ -7,18 +7,15 @@
 // except according to those terms.
 
 use alloc::vec::Vec;
-use std::hash;
-use std::iter::FromIterator;
 use std::iter::IntoIterator;
 use std::mem;
 use std::ops::{Index, IndexMut};
+use std::{hash, mem::size_of};
+use std::{iter::FromIterator, slice};
 
-use crate::imp_prelude::*;
+use crate::iter::{Iter, IterMut};
 use crate::NdIndex;
-use crate::{
-    aview_mut2,
-    iter::{Iter, IterMut},
-};
+use crate::{dimension, imp_prelude::*};
 
 use crate::numeric_util;
 use crate::{FoldWhile, Zip};
@@ -315,10 +312,26 @@ where
 }
 
 /// Implementation of ArrayView2::from(&S) where S is a slice to a 2D array
+///
+/// **Panics** if the product of non-zero axis lengths overflows `isize` (This can only occur if A
+/// is zero-sized because slices cannot contain more than `isize::MAX` number of bytes).
 impl<'a, A, const N: usize> From<&'a [[A; N]]> for ArrayView<'a, A, Ix2> {
     /// Create a two-dimensional read-only array view of the data in `slice`
-    fn from(slice: &'a [[A; N]]) -> Self {
-        aview2(slice)
+    fn from(xs: &'a [[A; N]]) -> Self {
+        let cols = N;
+        let rows = xs.len();
+        let dim = Ix2(rows, cols);
+        if size_of::<A>() == 0 {
+            dimension::size_of_shape_checked(&dim)
+                .expect("Product of non-zero axis lengths must not overflow isize.");
+        }
+
+        // `cols * rows` is guaranteed to fit in `isize` because we checked that it fits in
+        // `isize::MAX`
+        unsafe {
+            let data = slice::from_raw_parts(xs.as_ptr() as *const A, cols * rows);
+            ArrayView::from_shape_ptr(dim, data.as_ptr())
+        }
     }
 }
 
@@ -355,10 +368,26 @@ where
 }
 
 /// Implementation of ArrayViewMut2::from(&S) where S is a slice to a 2D array
+///
+/// **Panics** if the product of non-zero axis lengths overflows `isize` (This can only occur if A
+/// is zero-sized because slices cannot contain more than `isize::MAX` number of bytes).
 impl<'a, A, const N: usize> From<&'a mut [[A; N]]> for ArrayViewMut<'a, A, Ix2> {
     /// Create a two-dimensional read-write array view of the data in `slice`
-    fn from(slice: &'a mut [[A; N]]) -> Self {
-        aview_mut2(slice)
+    fn from(xs: &'a mut [[A; N]]) -> Self {
+        let cols = N;
+        let rows = xs.len();
+        let dim = Ix2(rows, cols);
+        if size_of::<A>() == 0 {
+            dimension::size_of_shape_checked(&dim)
+                .expect("Product of non-zero axis lengths must not overflow isize.");
+        }
+
+        // `cols * rows` is guaranteed to fit in `isize` because we checked that it fits in
+        // `isize::MAX`
+        unsafe {
+            let data = slice::from_raw_parts_mut(xs.as_mut_ptr() as *mut A, cols * rows);
+            ArrayViewMut::from_shape_ptr(dim, data.as_mut_ptr())
+        }
     }
 }
 
