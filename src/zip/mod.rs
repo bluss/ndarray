@@ -48,6 +48,7 @@ where
     /// Broadcast the array to the new dimensions `shape`.
     ///
     /// ***Panics*** if broadcasting isn’t possible.
+    #[track_caller]
     fn broadcast_unwrap(self, shape: E) -> Self::Output;
     private_decl! {}
 }
@@ -267,6 +268,7 @@ where
     /// Return the length of `axis`
     ///
     /// ***Panics*** if `axis` is out of bounds.
+    #[track_caller]
     fn len_of(&self, axis: Axis) -> usize {
         self.dimension[axis.index()]
     }
@@ -671,6 +673,7 @@ macro_rules! map_impl {
             /// Include the producer `p` in the Zip.
             ///
             /// ***Panics*** if `p`’s shape doesn’t match the Zip’s exactly.
+            #[track_caller]
             pub fn and<P>(self, p: P) -> Zip<($($p,)* P::Output, ), D>
                 where P: IntoNdProducer<Dim=D>,
             {
@@ -704,6 +707,7 @@ macro_rules! map_impl {
             /// If their shapes disagree, `rhs` is broadcast to the shape of `self`.
             ///
             /// ***Panics*** if broadcasting isn’t possible.
+            #[track_caller]
             pub fn and_broadcast<'a, P, D2, Elem>(self, p: P)
                 -> Zip<($($p,)* ArrayView<'a, Elem, D>, ), D>
                 where P: IntoNdProducer<Dim=D2, Output=ArrayView<'a, Elem, D2>, Item=&'a Elem>,

@@ -152,6 +152,7 @@ where
     /// let var = a.var(1.);
     /// assert_abs_diff_eq!(var, 6.7331, epsilon = 1e-4);
     /// ```
+    #[track_caller]
     #[cfg(feature = "std")]
     pub fn var(&self, ddof: A) -> A
     where
@@ -217,6 +218,7 @@ where
     /// let stddev = a.std(1.);
     /// assert_abs_diff_eq!(stddev, 2.59483, epsilon = 1e-4);
     /// ```
+    #[track_caller]
     #[cfg(feature = "std")]
     pub fn std(&self, ddof: A) -> A
     where
@@ -241,6 +243,7 @@ where
     /// ```
     ///
     /// **Panics** if `axis` is out of bounds.
+    #[track_caller]
     pub fn sum_axis(&self, axis: Axis) -> Array<A, D::Smaller>
     where
         A: Clone + Zero + Add<Output = A>,
@@ -283,6 +286,7 @@ where
     ///     a.mean_axis(Axis(0)).unwrap().mean_axis(Axis(0)).unwrap() == aview0(&3.5)
     /// );
     /// ```
+    #[track_caller]
     pub fn mean_axis(&self, axis: Axis) -> Option<Array<A, D::Smaller>>
     where
         A: Clone + Zero + FromPrimitive + Add<Output = A> + Div<Output = A>,
@@ -341,6 +345,7 @@ where
     /// let var = a.var_axis(Axis(0), 1.);
     /// assert_eq!(var, aview1(&[4., 4.]));
     /// ```
+    #[track_caller]
     #[cfg(feature = "std")]
     pub fn var_axis(&self, axis: Axis, ddof: A) -> Array<A, D::Smaller>
     where
@@ -410,6 +415,7 @@ where
     /// let stddev = a.std_axis(Axis(0), 1.);
     /// assert_eq!(stddev, aview1(&[2., 2.]));
     /// ```
+    #[track_caller]
     #[cfg(feature = "std")]
     pub fn std_axis(&self, axis: Axis, ddof: A) -> Array<A, D::Smaller>
     where

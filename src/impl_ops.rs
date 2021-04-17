@@ -72,6 +72,7 @@ where
     E: Dimension,
 {
     type Output = ArrayBase<S, <D as DimMax<E>>::Output>;
+    #[track_caller]
     fn $mth(self, rhs: ArrayBase<S2, E>) -> Self::Output
     {
         self.$mth(&rhs)
@@ -99,6 +100,7 @@ where
     E: Dimension,
 {
     type Output = ArrayBase<S, <D as DimMax<E>>::Output>;
+    #[track_caller]
     fn $mth(self, rhs: &ArrayBase<S2, E>) -> Self::Output
     {
         if self.ndim() == rhs.ndim() && self.shape() == rhs.shape() {
@@ -139,6 +141,7 @@ where
     E: Dimension + DimMax<D>,
 {
     type Output = ArrayBase<S2, <E as DimMax<D>>::Output>;
+    #[track_caller]
     fn $mth(self, rhs: ArrayBase<S2, E>) -> Self::Output
     where
     {
@@ -178,6 +181,7 @@ where
     E: Dimension,
 {
     type Output = Array<A, <D as DimMax<E>>::Output>;
+    #[track_caller]
     fn $mth(self, rhs: &'a ArrayBase<S2, E>) -> Self::Output {
         let (lhs, rhs) = if self.ndim() == rhs.ndim() && self.shape() == rhs.shape() {
             let lhs = self.view().into_dimensionality::<<D as DimMax<E>>::Output>().unwrap();
@@ -446,6 +450,7 @@ mod assign_ops {
                 D: Dimension,
                 E: Dimension,
             {
+                #[track_caller]
                 fn $method(&mut self, rhs: &ArrayBase<S2, E>) {
                     self.zip_mut_with(rhs, |x, y| {
                         x.$method(y.clone());

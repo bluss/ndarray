@@ -832,6 +832,7 @@ impl<A, D: Dimension> AxisIterCore<A, D> {
     ///
     /// **Panics** if `index` is strictly greater than the iterator's remaining
     /// length.
+    #[track_caller]
     fn split_at(self, index: usize) -> (Self, Self) {
         assert!(index <= self.len());
         let mid = self.index + index;
@@ -963,6 +964,7 @@ impl<'a, A, D: Dimension> AxisIter<'a, A, D> {
     ///
     /// **Panics** if `index` is strictly greater than the iterator's remaining
     /// length.
+    #[track_caller]
     pub fn split_at(self, index: usize) -> (Self, Self) {
         let (left, right) = self.iter.split_at(index);
         (
@@ -1049,6 +1051,7 @@ impl<'a, A, D: Dimension> AxisIterMut<'a, A, D> {
     ///
     /// **Panics** if `index` is strictly greater than the iterator's remaining
     /// length.
+    #[track_caller]
     pub fn split_at(self, index: usize) -> (Self, Self) {
         let (left, right) = self.iter.split_at(index);
         (
@@ -1253,6 +1256,7 @@ clone_bounds!(
 /// the number of chunks, and the shape of the last chunk.
 ///
 /// **Panics** if `size == 0`.
+#[track_caller]
 fn chunk_iter_parts<A, D: Dimension>(
     v: ArrayView<'_, A, D>,
     axis: Axis,
@@ -1339,6 +1343,7 @@ macro_rules! chunk_iter_impl {
             ///
             /// **Panics** if `index` is strictly greater than the iterator's remaining
             /// length.
+            #[track_caller]
             pub fn split_at(self, index: usize) -> (Self, Self) {
                 let (left, right) = self.iter.split_at(index);
                 (

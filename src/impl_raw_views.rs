@@ -105,6 +105,7 @@ where
     /// before the split and one array pointer after the split.
     ///
     /// **Panics** if `axis` or `index` is out of bounds.
+    #[track_caller]
     pub fn split_at(self, axis: Axis, index: Ix) -> (Self, Self) {
         assert!(index <= self.len_of(axis));
         let left_ptr = self.ptr.as_ptr();
@@ -138,6 +139,7 @@ where
     /// While this method is safe, for the same reason as regular raw pointer
     /// casts are safe, access through the produced raw view is only possible
     /// in an unsafe block or function.
+    #[track_caller]
     pub fn cast<B>(self) -> RawArrayView<B, D> {
         assert_eq!(
             mem::size_of::<B>(),
@@ -198,9 +200,9 @@ where
     ///     address by moving along all axes must not exceed `isize::MAX`. This
     ///     constraint prevents overflow when calculating the `count` parameter to
     ///     [`.offset()`] regardless of the starting point due to past offsets.
-    ///
-    /// * The product of non-zero axis lengths must not exceed `isize::MAX`.
     /// 
+    /// * The product of non-zero axis lengths must not exceed `isize::MAX`.
+    ///
     /// * Strides must be non-negative.
     ///
     /// This function can use debug assertions to check some of these requirements,
@@ -270,6 +272,7 @@ where
     /// before the split and one array pointer after the split.
     ///
     /// **Panics** if `axis` or `index` is out of bounds.
+    #[track_caller]
     pub fn split_at(self, axis: Axis, index: Ix) -> (Self, Self) {
         let (left, right) = self.into_raw_view().split_at(axis, index);
         unsafe {
@@ -290,6 +293,7 @@ where
     /// While this method is safe, for the same reason as regular raw pointer
     /// casts are safe, access through the produced raw view is only possible
     /// in an unsafe block or function.
+    #[track_caller]
     pub fn cast<B>(self) -> RawArrayViewMut<B, D> {
         assert_eq!(
             mem::size_of::<B>(),

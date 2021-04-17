@@ -306,11 +306,13 @@ pub trait DimensionExt {
     /// Get the dimension at `axis`.
     ///
     /// *Panics* if `axis` is out of bounds.
+    #[track_caller]
     fn axis(&self, axis: Axis) -> Ix;
 
     /// Set the dimension at `axis`.
     ///
     /// *Panics* if `axis` is out of bounds.
+    #[track_caller]
     fn set_axis(&mut self, axis: Axis, value: Ix);
 }
 
@@ -345,6 +347,7 @@ impl<'a> DimensionExt for [Ix] {
 /// available.
 ///
 /// **Panics** if `index` is larger than the size of the axis
+#[track_caller]
 // FIXME: Move to Dimension trait
 pub fn do_collapse_axis<D: Dimension>(
     dims: &mut D,
@@ -381,6 +384,7 @@ pub fn abs_index(len: Ix, index: Ixs) -> Ix {
 /// The return value is (start, end, step).
 ///
 /// **Panics** if stride is 0 or if any index is out of bounds.
+#[track_caller]
 fn to_abs_slice(axis_len: usize, slice: Slice) -> (usize, usize, isize) {
     let Slice { start, end, step } = slice;
     let start = abs_index(axis_len, start);
@@ -420,6 +424,7 @@ pub fn offset_from_ptr_to_memory<D: Dimension>(dim: &D, strides: &D) -> isize {
 /// Modify dimension, stride and return data pointer offset
 ///
 /// **Panics** if stride is 0 or if any index is out of bounds.
+#[track_caller]
 pub fn do_slice(dim: &mut usize, stride: &mut usize, slice: Slice) -> isize {
     let (start, end, step) = to_abs_slice(*dim, slice);
 

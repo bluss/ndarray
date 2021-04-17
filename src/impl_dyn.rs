@@ -29,6 +29,7 @@ where
     /// assert_eq!(a, arr3(&[[[1, 2, 3]], [[4, 5, 6]]]).into_dyn());
     /// assert_eq!(a.shape(), &[2, 1, 3]);
     /// ```
+    #[track_caller]
     pub fn insert_axis_inplace(&mut self, axis: Axis) {
         assert!(axis.index() <= self.ndim());
         self.dim = self.dim.insert_axis(axis);
@@ -50,6 +51,7 @@ where
     /// assert_eq!(a, arr1(&[2, 5]).into_dyn());
     /// assert_eq!(a.shape(), &[2]);
     /// ```
+    #[track_caller]
     pub fn index_axis_inplace(&mut self, axis: Axis, index: usize) {
         self.collapse_axis(axis, index);
         self.dim = self.dim.remove_axis(axis);
