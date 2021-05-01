@@ -6,16 +6,16 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use std::hash;
-use std::iter::FromIterator;
+use alloc::vec::Vec;
 use std::iter::IntoIterator;
 use std::mem;
 use std::ops::{Index, IndexMut};
-use alloc::vec::Vec;
+use std::{hash, mem::size_of};
+use std::{iter::FromIterator, slice};
 
-use crate::imp_prelude::*;
 use crate::iter::{Iter, IterMut};
 use crate::NdIndex;
+use crate::{dimension, imp_prelude::*};
 
 use crate::numeric_util;
 use crate::{FoldWhile, Zip};
@@ -311,6 +311,30 @@ where
     }
 }
 
+/// Implementation of ArrayView2::from(&S) where S is a slice to a 2D array
+///
+/// **Panics** if the product of non-zero axis lengths overflows `isize` (This can only occur if A
+/// is zero-sized because slices cannot contain more than `isize::MAX` number of bytes).
+impl<'a, A, const N: usize> From<&'a [[A; N]]> for ArrayView<'a, A, Ix2> {
+    /// Create a two-dimensional read-only array view of the data in `slice`
+    fn from(xs: &'a [[A; N]]) -> Self {
+        let cols = N;
+        let rows = xs.len();
+        let dim = Ix2(rows, cols);
+        if size_of::<A>() == 0 {
+            dimension::size_of_shape_checked(&dim)
+                .expect("Product of non-zero axis lengths must not overflow isize.");
+        }
+
+        // `cols * rows` is guaranteed to fit in `isize` because we checked that it fits in
+        // `isize::MAX`
+        unsafe {
+            let data = slice::from_raw_parts(xs.as_ptr() as *const A, cols * rows);
+            ArrayView::from_shape_ptr(dim, data.as_ptr())
+        }
+    }
+}
+
 /// Implementation of `ArrayView::from(&A)` where `A` is an array.
 impl<'a, A, S, D> From<&'a ArrayBase<S, D>> for ArrayView<'a, A, D>
 where
@@ -340,6 +364,30 @@ where
             );
         }
         unsafe { Self::from_shape_ptr(xs.len(), xs.as_mut_ptr()) }
+    }
+}
+
+/// Implementation of ArrayViewMut2::from(&S) where S is a slice to a 2D array
+///
+/// **Panics** if the product of non-zero axis lengths overflows `isize` (This can only occur if A
+/// is zero-sized because slices cannot contain more than `isize::MAX` number of bytes).
+impl<'a, A, const N: usize> From<&'a mut [[A; N]]> for ArrayViewMut<'a, A, Ix2> {
+    /// Create a two-dimensional read-write array view of the data in `slice`
+    fn from(xs: &'a mut [[A; N]]) -> Self {
+        let cols = N;
+        let rows = xs.len();
+        let dim = Ix2(rows, cols);
+        if size_of::<A>() == 0 {
+            dimension::size_of_shape_checked(&dim)
+                .expect("Product of non-zero axis lengths must not overflow isize.");
+        }
+
+        // `cols * rows` is guaranteed to fit in `isize` because we checked that it fits in
+        // `isize::MAX`
+        unsafe {
+            let data = slice::from_raw_parts_mut(xs.as_mut_ptr() as *mut A, cols * rows);
+            ArrayViewMut::from_shape_ptr(dim, data.as_mut_ptr())
+        }
     }
 }
 

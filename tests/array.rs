@@ -9,9 +9,9 @@
 
 use defmac::defmac;
 use itertools::{enumerate, zip, Itertools};
+use ndarray::indices;
 use ndarray::prelude::*;
 use ndarray::{arr3, rcarr2};
-use ndarray::indices;
 use ndarray::{Slice, SliceInfo, SliceInfoElem};
 use std::convert::TryFrom;
 
@@ -729,7 +729,7 @@ fn diag() {
     let a = arr2(&[[1., 2., 3.0f32], [0., 0., 0.]]);
     let d = a.view().into_diag();
     assert_eq!(d.dim(), 2);
-    let d = arr2::<f32, _>(&[[]]).into_diag();
+    let d = arr2::<f32, 0>(&[[]]).into_diag();
     assert_eq!(d.dim(), 0);
     let d = ArcArray::<f32, _>::zeros(()).into_diag();
     assert_eq!(d.dim(), 1);
@@ -958,7 +958,7 @@ fn zero_axes() {
     a.map_inplace(|_| panic!());
     a.for_each(|_| panic!());
     println!("{:?}", a);
-    let b = arr2::<f32, _>(&[[], [], [], []]);
+    let b = arr2::<f32, 0>(&[[], [], [], []]);
     println!("{:?}\n{:?}", b.shape(), b);
 
     // we can even get a subarray of b
@@ -2018,9 +2018,8 @@ fn test_view_from_shape_ptr() {
 #[test]
 fn test_view_from_shape_ptr_deny_neg_strides() {
     let data = [0, 1, 2, 3, 4, 5];
-    let _view = unsafe {
-        ArrayView::from_shape_ptr((2, 3).strides((-3isize as usize, 1)), data.as_ptr())
-    };
+    let _view =
+        unsafe { ArrayView::from_shape_ptr((2, 3).strides((-3isize as usize, 1)), data.as_ptr()) };
 }
 
 #[should_panic(expected = "Unsupported")]
@@ -2413,74 +2412,48 @@ mod array_cow_tests {
 
 #[test]
 fn test_remove_index() {
-    let mut a = arr2(&[[1, 2, 3],
-                       [4, 5, 6],
-                       [7, 8, 9],
-                       [10,11,12]]);
+    let mut a = arr2(&[[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]);
     a.remove_index(Axis(0), 1);
     a.remove_index(Axis(1), 2);
     assert_eq!(a.shape(), &[3, 2]);
-    assert_eq!(a,
-        array![[1, 2],
-               [7, 8],
-               [10,11]]);
+    assert_eq!(a, array![[1, 2], [7, 8], [10, 11]]);
 
-    let mut a = arr2(&[[1, 2, 3],
-                       [4, 5, 6],
-                       [7, 8, 9],
-                       [10,11,12]]);
+    let mut a = arr2(&[[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]);
     a.invert_axis(Axis(0));
     a.remove_index(Axis(0), 1);
     a.remove_index(Axis(1), 2);
     assert_eq!(a.shape(), &[3, 2]);
-    assert_eq!(a,
-        array![[10,11],
-               [4, 5],
-               [1, 2]]);
+    assert_eq!(a, array![[10, 11], [4, 5], [1, 2]]);
 
     a.remove_index(Axis(1), 1);
 
     assert_eq!(a.shape(), &[3, 1]);
-    assert_eq!(a,
-        array![[10],
-               [4],
-               [1]]);
+    assert_eq!(a, array![[10], [4], [1]]);
     a.remove_index(Axis(1), 0);
     assert_eq!(a.shape(), &[3, 0]);
-    assert_eq!(a,
-        array![[],
-               [],
-               []]);
+    assert_eq!(a, array![[], [], []]);
 }
 
-#[should_panic(expected="must be less")]
+#[should_panic(expected = "must be less")]
 #[test]
 fn test_remove_index_oob1() {
-    let mut a = arr2(&[[1, 2, 3],
-                       [4, 5, 6],
-                       [7, 8, 9],
-                       [10,11,12]]);
+    let mut a = arr2(&[[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]);
     a.remove_index(Axis(0), 4);
 }
 
-#[should_panic(expected="must be less")]
+#[should_panic(expected = "must be less")]
 #[test]
 fn test_remove_index_oob2() {
     let mut a = array![[10], [4], [1]];
     a.remove_index(Axis(1), 0);
     assert_eq!(a.shape(), &[3, 0]);
-    assert_eq!(a,
-        array![[],
-               [],
-               []]);
+    assert_eq!(a, array![[], [], []]);
     a.remove_index(Axis(0), 1); // ok
-    assert_eq!(a,
-        array![[],
-               []]);
+    assert_eq!(a, array![[], []]);
     a.remove_index(Axis(1), 0); // oob
 }
 
-#[should_panic(expected="index out of bounds")]
+#[should_panic(expected = "index out of bounds")]
 #[test]
 fn test_remove_index_oob3() {
     let mut a = array![[10], [4], [1]];

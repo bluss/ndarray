@@ -1,4 +1,3 @@
-
 use crate::imp_prelude::*;
 use crate::Layout;
 use crate::NdIndex;
@@ -160,6 +159,26 @@ impl<'a, A: 'a> IntoNdProducer for &'a [A] {
 
 /// A mutable slice is a mutable one-dimensional producer
 impl<'a, A: 'a> IntoNdProducer for &'a mut [A] {
+    type Item = <Self::Output as NdProducer>::Item;
+    type Dim = Ix1;
+    type Output = ArrayViewMut1<'a, A>;
+    fn into_producer(self) -> Self::Output {
+        <_>::from(self)
+    }
+}
+
+/// A one-dimensional array is a one-dimensional producer
+impl<'a, A: 'a, const N: usize> IntoNdProducer for &'a [A; N] {
+    type Item = <Self::Output as NdProducer>::Item;
+    type Dim = Ix1;
+    type Output = ArrayView1<'a, A>;
+    fn into_producer(self) -> Self::Output {
+        <_>::from(self)
+    }
+}
+
+/// A mutable one-dimensional array is a mutable one-dimensional producer
+impl<'a, A: 'a, const N: usize> IntoNdProducer for &'a mut [A; N] {
     type Item = <Self::Output as NdProducer>::Item;
     type Dim = Ix1;
     type Output = ArrayViewMut1<'a, A>;
@@ -399,4 +418,3 @@ impl<A, D: Dimension> NdProducer for RawArrayViewMut<A, D> {
         self.split_at(axis, index)
     }
 }
-
