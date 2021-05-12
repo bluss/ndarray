@@ -9,6 +9,7 @@
 #![doc(html_root_url = "https://docs.rs/ndarray/0.15/")]
 #![doc(html_logo_url = "https://rust-ndarray.github.io/images/rust-ndarray_logo.svg")]
 #![allow(
+    clippy::redundant_pattern_matching, // if let is sometimes good style
     clippy::many_single_char_names,
     clippy::deref_addrof,
     clippy::unreadable_literal,
@@ -150,8 +151,7 @@ pub use crate::slice::{
     MultiSliceArg, NewAxis, Slice, SliceArg, SliceInfo, SliceInfoElem, SliceNextDim,
 };
 
-use crate::iterators::Baseiter;
-use crate::iterators::{ElementsBase, ElementsBaseMut, Iter, IterMut};
+use crate::iterators::{ElementsBase, ElementsBaseMut};
 
 pub use crate::arraytraits::AsArray;
 #[cfg(feature = "std")]

@@ -10,9 +10,9 @@ use alloc::slice;
 
 use crate::imp_prelude::*;
 
-use crate::{Baseiter, ElementsBase, ElementsBaseMut, Iter, IterMut};
-
-use crate::iter::{self, AxisIter, AxisIterMut};
+use crate::iter::{self, Iter, IterMut, AxisIter, AxisIterMut};
+use crate::iterators::base::{Baseiter, ElementsBase, ElementsBaseMut, OrderOption, PreserveOrder,
+                             ArbitraryOrder, NoOptimization};
 use crate::math_cell::MathCell;
 use crate::IndexLonger;
 
@@ -140,14 +140,25 @@ impl<'a, A, D> ArrayView<'a, A, D>
 where
     D: Dimension,
 {
+    /// Create a base iter fromt the view with the given order option
     #[inline]
-    pub(crate) fn into_base_iter(self) -> Baseiter<A, D> {
-        unsafe { Baseiter::new(self.ptr.as_ptr(), self.dim, self.strides) }
+    pub(crate) fn into_base_iter<F: OrderOption>(self) -> Baseiter<A, D> {
+        unsafe { Baseiter::new_with_order::<F>(self.ptr.as_ptr(), self.dim, self.strides) }
     }
 
     #[inline]
-    pub(crate) fn into_elements_base(self) -> ElementsBase<'a, A, D> {
-        ElementsBase::new(self)
+    pub(crate) fn into_elements_base_keep_dims(self) -> ElementsBase<'a, A, D> {
+        ElementsBase::new::<NoOptimization>(self)
+    }
+
+    #[inline]
+    pub(crate) fn into_elements_base_preserve_order(self) -> ElementsBase<'a, A, D> {
+        ElementsBase::new::<PreserveOrder>(self)
+    }
+
+    #[inline]
+    pub(crate) fn into_elements_base_any_order(self) -> ElementsBase<'a, A, D> {
+        ElementsBase::new::<ArbitraryOrder>(self)
     }
 
     pub(crate) fn into_iter_(self) -> Iter<'a, A, D> {
@@ -179,15 +190,27 @@ where
         unsafe { RawArrayViewMut::new(self.ptr, self.dim, self.strides) }
     }
 
+    /// Create a base iter fromt the view with the given order option
     #[inline]
-    pub(crate) fn into_base_iter(self) -> Baseiter<A, D> {
-        unsafe { Baseiter::new(self.ptr.as_ptr(), self.dim, self.strides) }
+    pub(crate) fn into_base_iter<F: OrderOption>(self) -> Baseiter<A, D> {
+        unsafe { Baseiter::new_with_order::<F>(self.ptr.as_ptr(), self.dim, self.strides) }
     }
 
     #[inline]
-    pub(crate) fn into_elements_base(self) -> ElementsBaseMut<'a, A, D> {
-        ElementsBaseMut::new(self)
+    pub(crate) fn into_elements_base_keep_dims(self) -> ElementsBaseMut<'a, A, D> {
+        ElementsBaseMut::new::<NoOptimization>(self)
     }
+
+    #[inline]
+    pub(crate) fn into_elements_base_preserve_order(self) -> ElementsBaseMut<'a, A, D> {
+        ElementsBaseMut::new::<PreserveOrder>(self)
+    }
+
+    #[inline]
+    pub(crate) fn into_elements_base_any_order(self) -> ElementsBaseMut<'a, A, D> {
+        ElementsBaseMut::new::<ArbitraryOrder>(self)
+    }
+
 
     /// Return the array’s data as a slice, if it is contiguous and in standard order.
     /// Otherwise return self in the Err branch of the result.

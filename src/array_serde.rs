@@ -17,7 +17,7 @@ use alloc::vec::Vec;
 use crate::imp_prelude::*;
 
 use super::arraytraits::ARRAY_FORMAT_VERSION;
-use super::Iter;
+use super::iter::Iter;
 use crate::IntoDimension;
 
 /// Verifies that the version of the deserialized array matches the current

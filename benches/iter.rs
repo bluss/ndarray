@@ -75,6 +75,76 @@ fn iter_filter_sum_2d_stride_f32(bench: &mut Bencher) {
 }
 
 #[bench]
+fn iter_sum_2d_row_matrix(bench: &mut Bencher) {
+    let a = Array::from_iter(0i32..64 * 64);
+    let v = a.view().insert_axis(Axis(1));
+    bench.iter(|| {
+        let mut s = 0;
+        for &elt in v.iter() {
+            s += elt;
+        }
+        s
+    });
+}
+
+#[bench]
+fn iter_sum_2d_row_matrix_for_strided(bench: &mut Bencher) {
+    let a = Array::from_iter(0i32..64 * 64).slice_move(s![..;2]);
+    let v = a.view().insert_axis(Axis(1));
+    bench.iter(|| {
+        let mut s = 0;
+        for &elt in v.iter() {
+            s += elt;
+        }
+        s
+    });
+}
+
+#[bench]
+fn iter_sum_2d_row_matrix_sum_strided(bench: &mut Bencher) {
+    let a = Array::from_iter(0i32..64 * 64).slice_move(s![..;2]);
+    let v = a.view().insert_axis(Axis(1));
+    bench.iter(|| {
+        v.iter().sum::<i32>()
+    });
+}
+
+#[bench]
+fn iter_sum_2d_col_matrix(bench: &mut Bencher) {
+    let a = Array::from_iter(0i32..64 * 64);
+    let v = a.view().insert_axis(Axis(0));
+    bench.iter(|| {
+        let mut s = 0;
+        for &elt in v.iter() {
+            s += elt;
+        }
+        s
+    });
+}
+
+#[bench]
+fn iter_sum_2d_col_matrix_for_strided(bench: &mut Bencher) {
+    let a = Array::from_iter(0i32..64 * 64).slice_move(s![..;2]);
+    let v = a.view().insert_axis(Axis(0));
+    bench.iter(|| {
+        let mut s = 0;
+        for &elt in v.iter() {
+            s += elt;
+        }
+        s
+    });
+}
+
+#[bench]
+fn iter_sum_2d_col_matrix_sum_strided(bench: &mut Bencher) {
+    let a = Array::from_iter(0i32..64 * 64).slice_move(s![..;2]);
+    let v = a.view().insert_axis(Axis(0));
+    bench.iter(|| {
+        v.iter().sum::<i32>()
+    });
+}
+
+#[bench]
 fn iter_rev_step_by_contiguous(bench: &mut Bencher) {
     let a = Array::linspace(0., 1., 512);
     bench.iter(|| {

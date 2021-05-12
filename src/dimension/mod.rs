@@ -315,6 +315,18 @@ pub trait DimensionExt {
     ///
     /// *Panics* if `axis` is out of bounds.
     fn set_axis(&mut self, axis: Axis, value: Ix);
+
+    /// Get as stride
+    #[inline]
+    fn get_stride(&self, axis: Axis) -> isize {
+        self.axis(axis) as isize
+    }
+
+    /// Set as stride
+    #[inline]
+    fn set_stride(&mut self, axis: Axis, value: isize) {
+        self.set_axis(axis, value as usize)
+    }
 }
 
 impl<D> DimensionExt for D
@@ -692,42 +704,144 @@ where
     }
 }
 
-/// Move the axis which has the smallest absolute stride and a length
-/// greater than one to be the last axis.
-pub fn move_min_stride_axis_to_last<D>(dim: &mut D, strides: &mut D)
+/// Attempt to merge axes if possible, starting from the back
+///
+/// Given axes [Axis(0), Axis(1), Axis(2), Axis(3)] this attempts
+/// to merge all axes one by one into Axis(3); when/if this fails,
+/// it attempts to merge the rest of the axes together into the next
+/// axis in line, for example a result could be:
+///
+/// [1, Axis(0) + Axis(1), 1, Axis(2) + Axis(3)] where `+` would
+/// mean axes were merged.
+pub(crate) fn merge_axes_from_the_back<D>(dim: &mut D, strides: &mut D)
 where
     D: Dimension,
 {
     debug_assert_eq!(dim.ndim(), strides.ndim());
     match dim.ndim() {
         0 | 1 => {}
-        2 => {
-            if dim[1] <= 1
-                || dim[0] > 1 && (strides[0] as isize).abs() < (strides[1] as isize).abs()
-            {
-                dim.slice_mut().swap(0, 1);
-                strides.slice_mut().swap(0, 1);
-            }
-        }
         n => {
-            if let Some(min_stride_axis) = (0..n)
-                .filter(|&ax| dim[ax] > 1)
-                .min_by_key(|&ax| (strides[ax] as isize).abs())
-            {
-                let last = n - 1;
-                dim.slice_mut().swap(last, min_stride_axis);
-                strides.slice_mut().swap(last, min_stride_axis);
+            let mut last = n - 1;
+            for i in (0..last).rev() {
+                if !merge_axes(dim, strides, Axis(i), Axis(last)) {
+                    last = i;
+                }
             }
         }
     }
 }
+
+/// Remove axes with length one, except never removing the last axis.
+///
+/// This function is a no-op for const dim.
+pub(crate) fn squeeze<D>(dim: &mut D, strides: &mut D)
+where
+    D: Dimension,
+{
+    if let Some(_) = D::NDIM {
+        return;
+    }
+
+    // infallible for dyn dim
+    let (d, s) = squeeze_into(dim, strides).unwrap();
+    *dim = d;
+    *strides = s;
+}
+
+/// Remove axes with length one, except never removing the last axis.
+///
+/// Return an error if there are more non-unitary dimensions than can be stored
+/// in `E`.  Infallible for dyn dim.
+///
+/// Squeeze does not shrink dyn dim down to smaller than 1D, but if the input is
+/// dynamic 0D, the output can be too.
+///
+/// For const dim, this may instead pad the dimensionality with ones if it needs
+/// to grow to fill the target dimensionality; the dimension is padded in the
+/// start.
+pub(crate) fn squeeze_into<D, E>(dim: &D, strides: &D) -> Result<(E, E), ShapeError>
+where
+    D: Dimension,
+    E: Dimension,
+{
+    debug_assert_eq!(dim.ndim(), strides.ndim());
+
+    // Count axes with dim == 1; we keep axes with d == 0 or d > 1
+    let mut ndim_new = 0;
+    for &d in dim.slice() {
+        if d != 1 { ndim_new += 1; }
+    }
+    let mut fill_ones = 0;
+    if let Some(e_ndim) = E::NDIM {
+        if e_ndim < ndim_new {
+            return Err(ShapeError::from_kind(ErrorKind::IncompatibleShape));
+        }
+        fill_ones = e_ndim - ndim_new;
+        ndim_new = e_ndim;
+    } else {
+        // dynamic-dimensional
+        // use minimum one dimension unless input has less than one dim
+        if dim.ndim() > 0 && ndim_new == 0 {
+            ndim_new = 1;
+            fill_ones = 1;
+        }
+    }
+
+    let mut new_dim = E::zeros(ndim_new);
+    let mut new_strides = E::zeros(ndim_new);
+    let mut i = 0;
+    while i < fill_ones {
+        new_dim[i] = 1;
+        new_strides[i] = 1;
+        i += 1;
+    }
+    for (&d, &s) in izip!(dim.slice(), strides.slice()) {
+        if d != 1 {
+            new_dim[i] = d;
+            new_strides[i] = s;
+            i += 1;
+        }
+    }
+    Ok((new_dim, new_strides))
+}
+
+
+/// Sort axes to standard/row major order, i.e Axis(0) has biggest stride and Axis(n - 1) least
+/// stride
+///
+/// The axes are sorted according to the .abs() of their stride.
+pub(crate) fn sort_axes_to_standard<D>(dim: &mut D, strides: &mut D)
+where
+    D: Dimension,
+{
+    if dim.ndim() <= 1 {
+        return;
+    }
+    debug_assert_eq!(dim.ndim(), strides.ndim());
+    // bubble sort axes
+    let mut changed = true;
+    while changed {
+        changed = false;
+        for i in 0..dim.ndim() - 1 {
+            // make sure higher stride axes sort before.
+            debug_assert!(strides.get_stride(Axis(i)) >= 0);
+            if strides.get_stride(Axis(i)).abs() < strides.get_stride(Axis(i + 1)).abs() {
+                changed = true;
+                dim.slice_mut().swap(i, i + 1);
+                strides.slice_mut().swap(i, i + 1);
+            }
+        }
+    }
+}
+
 
 #[cfg(test)]
 mod test {
     use super::{
         arith_seq_intersect, can_index_slice, can_index_slice_not_custom, extended_gcd,
         max_abs_offset_check_overflow, slice_min_max, slices_intersect,
-        solve_linear_diophantine_eq, IntoDimension,
+        solve_linear_diophantine_eq, IntoDimension, squeeze,
+        merge_axes_from_the_back,
     };
     use crate::error::{from_kind, ErrorKind};
     use crate::slice::Slice;
@@ -1045,5 +1159,142 @@ mod test {
             s![.., ..;9],
             s![.., 3..;6, NewAxis]
         ));
+    }
+
+    #[test]
+    #[cfg(feature = "std")]
+    fn test_squeeze() {
+        let dyndim = Dim::<&[usize]>;
+
+        let mut d = dyndim(&[1, 2, 1, 1, 3, 1]);
+        let mut s = dyndim(&[!0, !0, !0, 9, 10, !0]);
+        let dans = dyndim(&[2, 3]);
+        let sans = dyndim(&[!0, 10]);
+        squeeze(&mut d, &mut s);
+        assert_eq!(d, dans);
+        assert_eq!(s, sans);
+
+        let mut d = dyndim(&[1, 1]);
+        let mut s = dyndim(&[3, 4]);
+        let dans = dyndim(&[1]);
+        let sans = dyndim(&[1]);
+        squeeze(&mut d, &mut s);
+        assert_eq!(d, dans);
+        assert_eq!(s, sans);
+
+        let mut d = dyndim(&[0, 1, 3, 4]);
+        let mut s = dyndim(&[2, 3, 4, 5]);
+        let dans = dyndim(&[0, 3, 4]);
+        let sans = dyndim(&[2, 4, 5]);
+        squeeze(&mut d, &mut s);
+        assert_eq!(d, dans);
+        assert_eq!(s, sans);
+    }
+
+    #[test]
+    #[cfg(feature = "std")]
+    fn test_squeeze_into() {
+        use super::squeeze_into;
+
+        let dyndim = Dim::<&[usize]>;
+
+        // squeeze to ixdyn
+        let d = dyndim(&[1, 2, 1, 1, 3, 1]);
+        let s = dyndim(&[!0, !0, !0, 9, 10, !0]);
+        let dans = dyndim(&[2, 3]);
+        let sans = dyndim(&[!0, 10]);
+        let (d2, s2) = squeeze_into::<_, IxDyn>(&d, &s).unwrap();
+        assert_eq!(d2, dans);
+        assert_eq!(s2, sans);
+
+        // squeeze to ixdyn does not go below 1D
+        let d = dyndim(&[1, 1]);
+        let s = dyndim(&[3, 4]);
+        let dans = dyndim(&[1]);
+        let sans = dyndim(&[1]);
+        let (d2, s2) = squeeze_into::<_, IxDyn>(&d, &s).unwrap();
+        assert_eq!(d2, dans);
+        assert_eq!(s2, sans);
+
+        let d = Dim([1, 1]);
+        let s = Dim([3, 4]);
+        let dans = Dim([1]);
+        let sans = Dim([1]);
+        let (d2, s2) = squeeze_into::<_, Ix1>(&d, &s).unwrap();
+        assert_eq!(d2, dans);
+        assert_eq!(s2, sans);
+
+        // squeeze to zero-dim
+        let (d2, s2) = squeeze_into::<_, Ix0>(&d, &s).unwrap();
+        assert_eq!(d2, Ix0());
+        assert_eq!(s2, Ix0());
+
+        let d = Dim([0, 1, 3, 4]);
+        let s = Dim([2, 3, 4, 5]);
+        let dans = Dim([0, 3, 4]);
+        let sans = Dim([2, 4, 5]);
+        let (d2, s2) = squeeze_into::<_, Ix3>(&d, &s).unwrap();
+        assert_eq!(d2, dans);
+        assert_eq!(s2, sans);
+
+        // Pad with ones
+        let d = Dim([0, 1, 3, 1]);
+        let s = Dim([2, 3, 4, 5]);
+        let dans = Dim([1, 0, 3]);
+        let sans = Dim([1, 2, 4]);
+        let (d2, s2) = squeeze_into::<_, Ix3>(&d, &s).unwrap();
+        assert_eq!(d2, dans);
+        assert_eq!(s2, sans);
+
+        // Try something that doesn't fit
+        let d = Dim([0, 1, 3, 1]);
+        let s = Dim([2, 3, 4, 5]);
+        let res = squeeze_into::<_, Ix1>(&d, &s);
+        assert!(res.is_err());
+        let res = squeeze_into::<_, Ix0>(&d, &s);
+        assert!(res.is_err());
+
+        // Squeeze 0d to 0d
+        let d = Dim([]);
+        let s = Dim([]);
+        let res = squeeze_into::<_, Ix0>(&d, &s);
+        assert!(res.is_ok());
+        // grow 0d to 2d
+        let dans = Dim([1, 1]);
+        let sans = Dim([1, 1]);
+        let (d2, s2) = squeeze_into::<_, Ix2>(&d, &s).unwrap();
+        assert_eq!(d2, dans);
+        assert_eq!(s2, sans);
+
+        // Squeeze 0d to 0d dynamic
+        let d = dyndim(&[]);
+        let s = dyndim(&[]);
+        let (d2, s2) = squeeze_into::<_, IxDyn>(&d, &s).unwrap();
+        let dans = d;
+        let sans = s;
+        assert_eq!(d2, dans);
+        assert_eq!(s2, sans);
+    }
+
+    #[test]
+    fn test_merge_axes_from_the_back() {
+        let dyndim = Dim::<&[usize]>;
+
+        let mut d = Dim([3, 4, 5]);
+        let mut s = Dim([20, 5, 1]);
+        merge_axes_from_the_back(&mut d, &mut s);
+        assert_eq!(d, Dim([1, 1, 60]));
+        assert_eq!(s, Dim([20, 5, 1]));
+
+        let mut d = Dim([3, 4, 5, 2]);
+        let mut s = Dim([80, 20, 2, 1]);
+        merge_axes_from_the_back(&mut d, &mut s);
+        assert_eq!(d, Dim([1, 12, 1, 10]));
+        assert_eq!(s, Dim([80, 20, 2, 1]));
+        let mut d = d.into_dyn();
+        let mut s = s.into_dyn();
+        squeeze(&mut d, &mut s);
+        assert_eq!(d, dyndim(&[12, 10]));
+        assert_eq!(s, dyndim(&[20, 1]));
     }
 }

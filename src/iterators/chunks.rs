@@ -79,7 +79,7 @@ where
     type IntoIter = ExactChunksIter<'a, A, D>;
     fn into_iter(self) -> Self::IntoIter {
         ExactChunksIter {
-            iter: self.base.into_elements_base(),
+            iter: self.base.into_elements_base_any_order(),
             chunk: self.chunk,
             inner_strides: self.inner_strides,
         }
@@ -169,7 +169,7 @@ where
     type IntoIter = ExactChunksIterMut<'a, A, D>;
     fn into_iter(self) -> Self::IntoIter {
         ExactChunksIterMut {
-            iter: self.base.into_elements_base(),
+            iter: self.base.into_elements_base_any_order(),
             chunk: self.chunk,
             inner_strides: self.inner_strides,
         }
