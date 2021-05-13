@@ -20,7 +20,7 @@ use crate::dimension;
 use crate::dimension::IntoDimension;
 use crate::dimension::{
     abs_index, axes_of, do_slice, merge_axes, move_min_stride_axis_to_last,
-    offset_from_ptr_to_memory, size_of_shape_checked, stride_offset, Axes,
+    offset_from_low_addr_ptr_to_logical_ptr, size_of_shape_checked, stride_offset, Axes,
 };
 use crate::dimension::broadcast::co_broadcast;
 use crate::dimension::reshape_dim;
@@ -1539,10 +1539,10 @@ where
         S: Data,
     {
         if self.is_contiguous() {
-            let offset = offset_from_ptr_to_memory(&self.dim, &self.strides);
+            let offset = offset_from_low_addr_ptr_to_logical_ptr(&self.dim, &self.strides);
             unsafe {
                 Some(slice::from_raw_parts(
-                    self.ptr.offset(offset).as_ptr(),
+                    self.ptr.sub(offset).as_ptr(),
                     self.len(),
                 ))
             }
@@ -1568,10 +1568,10 @@ where
     {
         if self.is_contiguous() {
             self.ensure_unique();
-            let offset = offset_from_ptr_to_memory(&self.dim, &self.strides);
+            let offset = offset_from_low_addr_ptr_to_logical_ptr(&self.dim, &self.strides);
             unsafe {
                 Ok(slice::from_raw_parts_mut(
-                    self.ptr.offset(offset).as_ptr(),
+                    self.ptr.sub(offset).as_ptr(),
                     self.len(),
                 ))
             }

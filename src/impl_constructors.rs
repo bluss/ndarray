@@ -20,7 +20,7 @@ use alloc::vec;
 use alloc::vec::Vec;
 
 use crate::dimension;
-use crate::dimension::offset_from_ptr_to_memory;
+use crate::dimension::offset_from_low_addr_ptr_to_logical_ptr;
 use crate::error::{self, ShapeError};
 use crate::extension::nonnull::nonnull_from_vec_data;
 use crate::imp_prelude::*;
@@ -492,7 +492,7 @@ where
         // debug check for issues that indicates wrong use of this constructor
         debug_assert!(dimension::can_index_slice(&v, &dim, &strides).is_ok());
 
-        let ptr = nonnull_from_vec_data(&mut v).offset(-offset_from_ptr_to_memory(&dim, &strides));
+        let ptr = nonnull_from_vec_data(&mut v).add(offset_from_low_addr_ptr_to_logical_ptr(&dim, &strides));
         ArrayBase::from_data_ptr(DataOwned::new(v), ptr).with_strides_dim(strides, dim)
     }
 

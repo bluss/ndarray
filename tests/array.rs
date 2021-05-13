@@ -1005,7 +1005,7 @@ fn array0_into_scalar() {
     // With this kind of setup, the `Array`'s pointer is not the same as the
     // underlying `Vec`'s pointer.
     let a: Array0<i32> = array![4, 5, 6, 7].index_axis_move(Axis(0), 2);
-    assert_ne!(a.as_ptr(), a.into_raw_vec().as_ptr());
+    assert_ne!(a.as_ptr(), a.into_raw_vec().0.as_ptr());
     // `.into_scalar()` should still work correctly.
     let a: Array0<i32> = array![4, 5, 6, 7].index_axis_move(Axis(0), 2);
     assert_eq!(a.into_scalar(), 6);
@@ -1020,7 +1020,7 @@ fn array_view0_into_scalar() {
     // With this kind of setup, the `Array`'s pointer is not the same as the
     // underlying `Vec`'s pointer.
     let a: Array0<i32> = array![4, 5, 6, 7].index_axis_move(Axis(0), 2);
-    assert_ne!(a.as_ptr(), a.into_raw_vec().as_ptr());
+    assert_ne!(a.as_ptr(), a.into_raw_vec().0.as_ptr());
     // `.into_scalar()` should still work correctly.
     let a: Array0<i32> = array![4, 5, 6, 7].index_axis_move(Axis(0), 2);
     assert_eq!(a.view().into_scalar(), &6);
@@ -1035,7 +1035,7 @@ fn array_view_mut0_into_scalar() {
     // With this kind of setup, the `Array`'s pointer is not the same as the
     // underlying `Vec`'s pointer.
     let a: Array0<i32> = array![4, 5, 6, 7].index_axis_move(Axis(0), 2);
-    assert_ne!(a.as_ptr(), a.into_raw_vec().as_ptr());
+    assert_ne!(a.as_ptr(), a.into_raw_vec().0.as_ptr());
     // `.into_scalar()` should still work correctly.
     let mut a: Array0<i32> = array![4, 5, 6, 7].index_axis_move(Axis(0), 2);
     assert_eq!(a.view_mut().into_scalar(), &6);

@@ -61,13 +61,90 @@ impl<A, D> Array<A, D>
 where
     D: Dimension,
 {
+    /// Returns the offset (in units of `A`) from the start of the allocation
+    /// to the first element, or `None` if the array is empty.
+    fn offset_from_alloc_to_logical_ptr(&self) -> Option<usize> {
+        if self.is_empty() {
+            return None;
+        }
+        if std::mem::size_of::<A>() == 0 {
+            Some(dimension::offset_from_low_addr_ptr_to_logical_ptr(
+                &self.dim,
+                &self.strides,
+            ))
+        } else {
+            let offset = unsafe { self.as_ptr().offset_from(self.data.as_ptr()) };
+            debug_assert!(offset >= 0);
+            Some(offset as usize)
+        }
+    }
+
     /// Return a vector of the elements in the array, in the way they are
-    /// stored internally.
+    /// stored internally, and the index in the vector corresponding to the
+    /// logically first element of the array (or `None` if the array is empty).
     ///
     /// If the array is in standard memory layout, the logical element order
     /// of the array (`.iter()` order) and of the returned vector will be the same.
-    pub fn into_raw_vec(self) -> Vec<A> {
-        self.data.into_vec()
+    ///
+    /// ```
+    /// use ndarray::{array, Array2, Axis};
+    ///
+    /// let mut arr: Array2<f64> = array![[1., 2.], [3., 4.], [5., 6.]];
+    /// arr.slice_axis_inplace(Axis(0), (1..).into());
+    /// assert_eq!(arr[[0, 0]], 3.);
+    /// let copy = arr.clone();
+    ///
+    /// let shape = arr.shape().to_owned();
+    /// let strides = arr.strides().to_owned();
+    /// let (v, offset) = arr.into_raw_vec();
+    ///
+    /// assert_eq!(v, &[1., 2., 3., 4., 5., 6.]);
+    /// assert_eq!(offset, Some(2));
+    /// assert_eq!(v[offset.unwrap()], 3.);
+    /// for row in 0..shape[0] {
+    ///     for col in 0..shape[1] {
+    ///         let index = (
+    ///             offset.unwrap() as isize
+    ///             + row as isize * strides[0]
+    ///             + col as isize * strides[1]
+    ///         ) as usize;
+    ///         assert_eq!(v[index], copy[[row, col]]);
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// In the case of zero-sized elements, the offset to the logically first
+    /// element is somewhat meaningless. For convenience, an offset will be
+    /// returned such that all indices computed using the offset, shape, and
+    /// strides will be in-bounds for the `Vec<A>`. Note that this offset won't
+    /// necessarily be the same as the offset for an array of nonzero-sized
+    /// elements sliced in the same way.
+    ///
+    /// ```
+    /// use ndarray::{array, Array2, Axis};
+    ///
+    /// let mut arr: Array2<()> = array![[(), ()], [(), ()], [(), ()]];
+    /// arr.slice_axis_inplace(Axis(0), (1..).into());
+    ///
+    /// let shape = arr.shape().to_owned();
+    /// let strides = arr.strides().to_owned();
+    /// let (v, offset) = arr.into_raw_vec();
+    ///
+    /// assert_eq!(v, &[(), (), (), (), (), ()]);
+    /// for row in 0..shape[0] {
+    ///     for col in 0..shape[1] {
+    ///         let index = (
+    ///             offset.unwrap() as isize
+    ///             + row as isize * strides[0]
+    ///             + col as isize * strides[1]
+    ///         ) as usize;
+    ///         assert_eq!(v[index], ());
+    ///     }
+    /// }
+    /// ```
+    pub fn into_raw_vec(self) -> (Vec<A>, Option<usize>) {
+        let offset = self.offset_from_alloc_to_logical_ptr();
+        (self.data.into_vec(), offset)
     }
 }
 
@@ -491,13 +568,8 @@ impl<A, D> Array<A, D>
 
         unsafe {
             // grow backing storage and update head ptr
-            let data_to_array_offset = if std::mem::size_of::<A>() != 0 {
-                self.as_ptr().offset_from(self.data.as_ptr())
-            } else {
-                0
-            };
-            debug_assert!(data_to_array_offset >= 0);
-            self.ptr = self.data.reserve(len_to_append).offset(data_to_array_offset);
+            let offset_from_alloc_to_logical = self.offset_from_alloc_to_logical_ptr().unwrap_or(0);
+            self.ptr = self.data.reserve(len_to_append).add(offset_from_alloc_to_logical);
 
             // clone elements from view to the array now
             //

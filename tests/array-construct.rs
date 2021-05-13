@@ -21,9 +21,9 @@ fn test_from_shape_fn() {
 #[test]
 fn test_dimension_zero() {
     let a: Array2<f32> = Array2::from(vec![[], [], []]);
-    assert_eq!(vec![0.; 0], a.into_raw_vec());
+    assert_eq!(vec![0.; 0], a.into_raw_vec().0);
     let a: Array3<f32> = Array3::from(vec![[[]], [[]], [[]]]);
-    assert_eq!(vec![0.; 0], a.into_raw_vec());
+    assert_eq!(vec![0.; 0], a.into_raw_vec().0);
 }
 
 #[test]
