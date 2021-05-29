@@ -7,12 +7,14 @@
 // except according to those terms.
 
 use alloc::slice;
+use rawpointer::PointerExt;
 use std::mem::MaybeUninit;
 
 use crate::imp_prelude::*;
 
 use crate::{Baseiter, ElementsBase, ElementsBaseMut, Iter, IterMut};
 
+use crate::dimension::offset_from_low_addr_ptr_to_logical_ptr;
 use crate::iter::{self, AxisIter, AxisIterMut};
 use crate::math_cell::MathCell;
 use crate::IndexLonger;
@@ -39,6 +41,26 @@ where
     pub fn to_slice(&self) -> Option<&'a [A]> {
         if self.is_standard_layout() {
             unsafe { Some(slice::from_raw_parts(self.ptr.as_ptr(), self.len())) }
+        } else {
+            None
+        }
+    }
+
+    /// Return the array’s data as a slice, if it is contiguous.
+    /// Return `None` otherwise.
+    ///
+    /// Note that while the method is similar to
+    /// [`ArrayBase::as_slice_memory_order()`], this method tranfers the view's
+    /// lifetime to the slice, so it is a bit more powerful.
+    pub fn to_slice_memory_order(&self) -> Option<&'a [A]> {
+        if self.is_contiguous() {
+            let offset = offset_from_low_addr_ptr_to_logical_ptr(&self.dim, &self.strides);
+            unsafe {
+                Some(slice::from_raw_parts(
+                    self.ptr.sub(offset).as_ptr(),
+                    self.len(),
+                ))
+            }
         } else {
             None
         }
@@ -118,6 +140,16 @@ where
     /// view's lifetime to the slice.
     pub fn into_slice(self) -> Option<&'a mut [A]> {
         self.try_into_slice().ok()
+    }
+
+    /// Return the array’s data as a slice, if it is contiguous.
+    /// Return `None` otherwise.
+    ///
+    /// Note that while this is similar to
+    /// [`ArrayBase::as_slice_memory_order_mut()`], this method tranfers the
+    /// view's lifetime to the slice.
+    pub fn into_slice_memory_order(self) -> Option<&'a mut [A]> {
+        self.try_into_slice_memory_order().ok()
     }
 
     /// Return a shared view of the array with elements as if they were embedded in cells.
@@ -216,6 +248,22 @@ where
     pub(crate) fn try_into_slice(self) -> Result<&'a mut [A], Self> {
         if self.is_standard_layout() {
             unsafe { Ok(slice::from_raw_parts_mut(self.ptr.as_ptr(), self.len())) }
+        } else {
+            Err(self)
+        }
+    }
+
+    /// Return the array’s data as a slice, if it is contiguous.
+    /// Otherwise return self in the Err branch of the result.
+    fn try_into_slice_memory_order(self) -> Result<&'a mut [A], Self> {
+        if self.is_contiguous() {
+            let offset = offset_from_low_addr_ptr_to_logical_ptr(&self.dim, &self.strides);
+            unsafe {
+                Ok(slice::from_raw_parts_mut(
+                    self.ptr.sub(offset).as_ptr(),
+                    self.len(),
+                ))
+            }
         } else {
             Err(self)
         }

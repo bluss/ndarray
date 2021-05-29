@@ -1001,6 +1001,42 @@ fn as_slice_memory_order() {
 }
 
 #[test]
+fn to_slice_memory_order() {
+    for shape in vec![[2, 0, 3, 5], [2, 1, 3, 5], [2, 4, 3, 5]] {
+        let data: Vec<usize> = (0..shape.iter().product()).collect();
+        let mut orig = Array1::from(data.clone()).into_shape(shape).unwrap();
+        for perm in vec![[0, 1, 2, 3], [0, 2, 1, 3], [2, 0, 1, 3]] {
+            let mut a = orig.view_mut().permuted_axes(perm);
+            assert_eq!(a.as_slice_memory_order().unwrap(), &data);
+            assert_eq!(a.as_slice_memory_order_mut().unwrap(), &data);
+            assert_eq!(a.view().to_slice_memory_order().unwrap(), &data);
+            assert_eq!(a.view_mut().into_slice_memory_order().unwrap(), &data);
+        }
+    }
+}
+
+#[test]
+fn to_slice_memory_order_discontiguous() {
+    let mut orig = Array3::<u8>::zeros([3, 2, 4]);
+    assert!(orig
+        .slice(s![.., 1.., ..])
+        .as_slice_memory_order()
+        .is_none());
+    assert!(orig
+        .slice_mut(s![.., 1.., ..])
+        .as_slice_memory_order_mut()
+        .is_none());
+    assert!(orig
+        .slice(s![.., 1.., ..])
+        .to_slice_memory_order()
+        .is_none());
+    assert!(orig
+        .slice_mut(s![.., 1.., ..])
+        .into_slice_memory_order()
+        .is_none());
+}
+
+#[test]
 fn array0_into_scalar() {
     // With this kind of setup, the `Array`'s pointer is not the same as the
     // underlying `Vec`'s pointer.
