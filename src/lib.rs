@@ -1627,6 +1627,7 @@ mod impl_raw_views;
 
 // Copy-on-write array methods
 mod impl_cow;
+pub mod ma;
 
 /// Returns `true` if the pointer is aligned.
 pub(crate) fn is_aligned<T>(ptr: *const T) -> bool {
