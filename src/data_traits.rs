@@ -16,7 +16,9 @@ use std::ptr::NonNull;
 use alloc::sync::Arc;
 use alloc::vec::Vec;
 
-use crate::{ArrayBase, CowRepr, Dimension, OwnedArcRepr, OwnedRepr, RawViewRepr, ViewRepr};
+use crate::{
+    ArcArray, ArrayBase, CowRepr, Dimension, OwnedArcRepr, OwnedRepr, RawViewRepr, ViewRepr,
+};
 
 /// Array representation trait.
 ///
@@ -439,7 +441,7 @@ unsafe impl<'a, A> DataMut for ViewRepr<&'a mut A> {}
 
 /// Array representation trait.
 ///
-/// A representation that is a unique or shared owner of its data.
+/// A representation which can be the owner of its data.
 ///
 /// ***Internal trait, see `Data`.***
 // The owned storage represents the ownership and allocation of the array's elements.
@@ -457,9 +459,13 @@ pub unsafe trait DataOwned: Data {
     fn new(elements: Vec<Self::Elem>) -> Self;
 
     /// Converts the data representation to a shared (copy on write)
-    /// representation, without any copying.
+    /// representation, cloning the array elements if necessary.
     #[doc(hidden)]
-    fn into_shared(self) -> OwnedArcRepr<Self::Elem>;
+    #[allow(clippy::wrong_self_convention)]
+    fn into_shared<D>(self_: ArrayBase<Self, D>) -> ArcArray<Self::Elem, D>
+    where
+        Self::Elem: Clone,
+        D: Dimension;
 }
 
 /// Array representation trait.
@@ -479,8 +485,12 @@ unsafe impl<A> DataOwned for OwnedRepr<A> {
         OwnedRepr::from(elements)
     }
 
-    fn into_shared(self) -> OwnedArcRepr<A> {
-        OwnedArcRepr(Arc::new(self))
+    fn into_shared<D>(self_: ArrayBase<Self, D>) -> ArcArray<A, D>
+    where
+        A: Clone,
+        D: Dimension,
+    {
+        ArcArray::from(self_)
     }
 }
 
@@ -491,8 +501,12 @@ unsafe impl<A> DataOwned for OwnedArcRepr<A> {
         OwnedArcRepr(Arc::new(OwnedRepr::from(elements)))
     }
 
-    fn into_shared(self) -> OwnedArcRepr<A> {
-        self
+    fn into_shared<D>(self_: ArrayBase<Self, D>) -> ArcArray<A, D>
+    where
+        A: Clone,
+        D: Dimension,
+    {
+        self_
     }
 }
 
@@ -605,6 +619,22 @@ unsafe impl<'a, A> Data for CowRepr<'a, A> {
 }
 
 unsafe impl<'a, A> DataMut for CowRepr<'a, A> where A: Clone {}
+
+unsafe impl<'a, A> DataOwned for CowRepr<'a, A> {
+    type MaybeUninit = CowRepr<'a, MaybeUninit<A>>;
+
+    fn new(elements: Vec<A>) -> Self {
+        CowRepr::Owned(OwnedRepr::new(elements))
+    }
+
+    fn into_shared<D>(self_: ArrayBase<Self, D>) -> ArcArray<A, D>
+    where
+        A: Clone,
+        D: Dimension,
+    {
+        self_.into_owned().into_shared()
+    }
+}
 
 /// Array representation trait.
 ///

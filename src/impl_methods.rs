@@ -242,16 +242,17 @@ where
     }
 
     /// Turn the array into a shared ownership (copy on write) array,
-    /// without any copying.
+    /// cloning the array elements if necessary.
+    ///
+    /// If you want to generalize over `Array` and `ArcArray` inputs but avoid
+    /// an `A: Clone` bound, use `Into::<ArcArray<A, D>>::into` instead of this
+    /// method.
     pub fn into_shared(self) -> ArcArray<A, D>
     where
+        A: Clone,
         S: DataOwned,
     {
-        let data = self.data.into_shared();
-        // safe because: equivalent unmoved data, ptr and dims remain valid
-        unsafe {
-            ArrayBase::from_data_ptr(data, self.ptr).with_strides_dim(self.strides, self.dim)
-        }
+        S::into_shared(self)
     }
 
     /// Returns a reference to the first element of the array, or `None` if it

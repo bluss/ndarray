@@ -12,14 +12,12 @@ use std::iter::IntoIterator;
 use std::mem;
 use std::ops::{Index, IndexMut};
 use alloc::boxed::Box;
+use alloc::sync::Arc;
 use alloc::vec::Vec;
 
 use crate::imp_prelude::*;
 use crate::iter::{Iter, IterMut};
-use crate::NdIndex;
-
-use crate::numeric_util;
-use crate::{FoldWhile, Zip};
+use crate::{numeric_util, FoldWhile, NdIndex, OwnedArcRepr, Zip};
 
 #[cold]
 #[inline(never)]
@@ -372,7 +370,9 @@ where
     D: Dimension,
 {
     fn from(arr: Array<A, D>) -> ArcArray<A, D> {
-        arr.into_shared()
+        let data = OwnedArcRepr(Arc::new(arr.data));
+        // safe because: equivalent unmoved data, ptr and dims remain valid
+        unsafe { ArrayBase::from_data_ptr(data, arr.ptr).with_strides_dim(arr.strides, arr.dim) }
     }
 }
 
