@@ -3,7 +3,7 @@ use std::cell::Cell;
 use std::cmp::Ordering;
 use std::fmt;
 
-use std::ops::{Deref, DerefMut};
+use std::ops::*;
 
 /// A transparent wrapper of [`Cell<T>`](std::cell::Cell) which is identical in every way, except
 /// it will implement arithmetic operators as well.
@@ -88,15 +88,60 @@ impl<T> fmt::Debug for MathCell<T>
     }
 }
 
+macro_rules! impl_math_cell_op {
+    ($trt:ident, $op:tt, $mth:ident) => {
+    impl<A, B> $trt<B> for MathCell<A>
+        where A: $trt<B>
+    {
+        type Output = MathCell<<A as $trt<B>>::Output>;
+        fn $mth(self, other: B) -> MathCell<<A as $trt<B>>::Output> {
+            MathCell::new(self.into_inner() $op other)
+        }
+    }
+    };
+}
+
+impl_math_cell_op!(Add, +, add);
+impl_math_cell_op!(Sub, -, sub);
+impl_math_cell_op!(Mul, *, mul);
+impl_math_cell_op!(Div, /, div);
+impl_math_cell_op!(Rem, %, rem);
+impl_math_cell_op!(BitAnd, &, bitand);
+impl_math_cell_op!(BitOr, |, bitor);
+impl_math_cell_op!(BitXor, ^, bitxor);
+impl_math_cell_op!(Shl, <<, shl);
+impl_math_cell_op!(Shr, >>, shr);
 
 #[cfg(test)]
 mod tests {
     use super::MathCell;
+    use crate::arr1;
 
     #[test]
     fn test_basic() {
         let c = &MathCell::new(0);
         c.set(1);
         assert_eq!(c.get(), 1);
+    }
+
+    #[test]
+    fn test_math_cell_ops() {
+        let s = [1, 2, 3, 4, 5, 6];
+        let mut a = arr1(&s[0..3]);
+        let b = arr1(&s[3..6]);
+        // binary_op
+        assert_eq!(a.cell_view() + &b, arr1(&[5, 7, 9]).cell_view());
+
+        // binary_op with scalar
+        assert_eq!(a.cell_view() * 2, arr1(&[10, 14, 18]).cell_view());
+
+        // unary_op
+        let mut a_v = a.cell_view();
+        a_v /= &b;
+        assert_eq!(a_v, arr1(&[2, 2, 3]).cell_view());
+
+        // unary_op with scalar
+        a_v <<= 1;
+        assert_eq!(a_v, arr1(&[4, 4, 6]).cell_view())
     }
 }

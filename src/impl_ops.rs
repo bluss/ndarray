@@ -226,6 +226,51 @@ impl<'a, A, S, D, B> $trt<B> for &'a ArrayBase<S, D>
         self.map(move |elt| elt.clone() $operator x.clone())
     }
 }
+
+/// Perform elementwise
+#[doc=$doc]
+/// between `self` and `rhs`,
+/// and return the result.
+///
+/// `self` must be a view of `MathCell`.
+///
+/// If their shapes disagree, `rhs` is broadcast to the shape of `self`.
+///
+/// **Panics** if broadcasting isn’t possible.
+impl<'a, A, B, S, D, E> $trt<&'a ArrayBase<S, E>> for ArrayView<'a, MathCell<A>, D>
+    where
+    A: Copy + $trt<B, Output=A>,
+    B: Clone,
+    S: Data<Elem=B>,
+    D: Dimension,
+    E: Dimension,
+{
+    type Output = ArrayView<'a, MathCell<A>, D>;
+    fn $mth(self, rhs: &ArrayBase<S, E>) -> Self::Output
+    {
+        self.zip_cell_with(rhs, |x, y| x.clone() $operator y.clone());
+        self
+    }
+}
+
+/// Perform elementwise
+#[doc=$doc]
+/// between `self` and the scalar `x`,
+/// and return the result (based on `self`).
+///
+/// `self` must be a view of `MathCell`.
+impl<'a, A, D, B> $trt<B> for ArrayView<'a, MathCell<A>, D>
+where
+    A: Copy + $trt<B, Output=A>,
+    D: Dimension,
+    B: ScalarOperand,
+{
+    type Output = ArrayView<'a, MathCell<A>, D>;
+    fn $mth(self, y: B) -> ArrayView<'a, MathCell<A>, D> {
+        self.zip_cell_with_elem(&y, |x, y| x.clone() $operator y.clone());
+        self
+    }
+}
     );
 );
 
@@ -287,6 +332,7 @@ impl<'a, S, D> $trt<&'a ArrayBase<S, D>> for $scalar
 mod arithmetic_ops {
     use super::*;
     use crate::imp_prelude::*;
+    use crate::MathCell;
 
     use num_complex::Complex;
     use std::ops::*;
@@ -429,6 +475,7 @@ mod arithmetic_ops {
 mod assign_ops {
     use super::*;
     use crate::imp_prelude::*;
+    use crate::MathCell;
 
     macro_rules! impl_assign_op {
         ($trt:ident, $method:ident, $doc:expr) => {
@@ -463,6 +510,42 @@ mod assign_ops {
                 fn $method(&mut self, rhs: A) {
                     self.map_inplace(move |elt| {
                         elt.$method(rhs.clone());
+                    });
+                }
+            }
+
+            #[doc=$doc]
+            /// If their shapes disagree, `rhs` is broadcast to the shape of `self`.
+            ///
+            /// **Panics** if broadcasting isn’t possible.
+            impl<'a, A, B, S, D, E> $trt<&'a ArrayBase<S, E>> for ArrayView<'a, MathCell<A>, D>
+            where
+                A: Copy + $trt<B>,
+                B: Clone,
+                S: Data<Elem = B>,
+                D: Dimension,
+                E: Dimension,
+            {
+                fn $method(&mut self, rhs: &ArrayBase<S, E>) {
+                    self.zip_cell_with(rhs, |x, y| {
+                        let mut x = x.clone();
+                        x.$method(y.clone());
+                        x
+                    });
+                }
+            }
+
+            #[doc=$doc]
+            impl<'a, A, D> $trt<A> for ArrayView<'a, MathCell<A>, D>
+            where
+                A: Copy + ScalarOperand + $trt<A>,
+                D: Dimension,
+            {
+                fn $method(&mut self, rhs: A) {
+                    self.zip_cell_with_elem(&rhs, |x, y| {
+                    let mut x = x.clone();
+                        x.$method(y.clone());
+                        x
                     });
                 }
             }

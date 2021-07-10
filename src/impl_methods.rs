@@ -2754,6 +2754,88 @@ where
     }
 }
 
+impl<AE, S, D> ArrayBase<S, D>
+    where
+        AE: Copy,
+        D: Dimension,
+        S: Data<Elem = MathCell<AE>>,
+{
+    /// Same as `zip_mut_with`, but just when element type is `MathCell`.
+    #[inline]
+    pub(crate) fn zip_cell_with<B, S2, E, F>(&self, rhs: &ArrayBase<S2, E>, f: F)
+        where
+            S2: Data<Elem = B>,
+            E: Dimension,
+            F: Fn(&AE, &B) -> AE,
+    {
+        if rhs.dim.ndim() == 0 {
+            // Skip broadcast from 0-dim array
+            self.zip_cell_with_elem(rhs.get_0d(), f);
+        } else if self.dim.ndim() == rhs.dim.ndim() && self.shape() == rhs.shape() {
+            self.zip_cell_with_same_shape(rhs, f);
+        } else {
+            let rhs_broadcast = rhs.broadcast_unwrap(self.raw_dim());
+            self.zip_cell_with_by_rows(&rhs_broadcast, f);
+        }
+    }
+
+    /// Same as `zip_mut_with_elem`, but just when element type is `MathCell`.
+    pub(crate) fn zip_cell_with_elem<B, F>(&self, rhs_elem: &B, f: F)
+        where
+            F: Fn(&AE, &B) -> AE,
+    {
+        match self.as_slice_memory_order() {
+            Some(slc) => slc.iter().for_each(|x| x.set(f(&x.get(), rhs_elem))),
+            None => {
+                let v = self.view();
+                v.into_elements_base().for_each(|x| x.set(f(&x.get(), rhs_elem)));
+            }
+        }
+    }
+
+    /// Same as `zip_mut_with_shame_shape`, but just when element type is `MathCell`.
+    pub(crate) fn zip_cell_with_same_shape<B, S2, E, F>(&self, rhs: &ArrayBase<S2, E>, f: F)
+        where
+            S2: Data<Elem = B>,
+            E: Dimension,
+            F: Fn(&AE, &B) -> AE,
+    {
+        debug_assert_eq!(self.shape(), rhs.shape());
+
+        if self.dim.strides_equivalent(&self.strides, &rhs.strides) {
+            if let Some(self_s) = self.as_slice_memory_order() {
+                if let Some(rhs_s) = rhs.as_slice_memory_order() {
+                    for (s, r) in self_s.iter().zip(rhs_s) {
+                        s.set(f(&s.get(), r));
+                    }
+                    return;
+                }
+            }
+        }
+
+        // Otherwise, fall back to the outer iter
+        self.zip_cell_with_by_rows(rhs, f);
+    }
+
+    /// Same as `zip_mut_with_by_rows`, but just when element type is `MathCell`.
+    #[inline(always)]
+    pub(crate) fn zip_cell_with_by_rows<B, S2, E, F>(&self, rhs: &ArrayBase<S2, E>, f: F)
+        where
+            S2: Data<Elem = B>,
+            E: Dimension,
+            F: Fn(&AE, &B) -> AE,
+    {
+        debug_assert_eq!(self.shape(), rhs.shape());
+        debug_assert_ne!(self.ndim(), 0);
+
+        // break the arrays up into their inner rows
+        let n = self.ndim();
+        let dim = self.raw_dim();
+        Zip::from(Lanes::new(self.view(), Axis(n - 1)))
+            .and(Lanes::new(rhs.broadcast_assume(dim), Axis(n - 1)))
+            .for_each(move |s_row, r_row| Zip::from(s_row).and(r_row).for_each(|a, b| a.set(f(&a.get(), b))));
+    }
+}
 
 /// Transmute from A to B.
 ///
