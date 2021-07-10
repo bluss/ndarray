@@ -179,7 +179,7 @@ where
     /// If the input array is contiguous, then the output array will have the same
     /// memory layout. Otherwise, the layout of the output array is unspecified.
     /// If you need a particular layout, you can allocate a new array with the
-    /// desired memory layout and [`.assign()`](#method.assign) the data.
+    /// desired memory layout and [`.assign()`](Self::assign) the data.
     /// Alternatively, you can collectan iterator, like this for a result in
     /// standard layout:
     ///
@@ -400,7 +400,7 @@ where
     ///
     /// Iterator element type is `(D::Pattern, &A)`.
     ///
-    /// See also [`Zip::indexed`](struct.Zip.html)
+    /// See also [`Zip::indexed`]
     pub fn indexed_iter(&self) -> IndexedIter<'_, A, D>
     where
         S: Data,
@@ -544,9 +544,9 @@ where
     /// collapsed, as in [`.collapse_axis()`], rather than removed, as in
     /// [`.slice_move()`] or [`.index_axis_move()`].
     ///
-    /// [`.collapse_axis()`]: #method.collapse_axis
-    /// [`.slice_move()`]: #method.slice_move
-    /// [`.index_axis_move()`]: #method.index_axis_move
+    /// [`.collapse_axis()`]: Self::collapse_axis
+    /// [`.slice_move()`]: Self::slice_move
+    /// [`.index_axis_move()`]: Self::index_axis_move
     ///
     /// See [*Slicing*](#slicing) for full documentation.
     /// See also [`s!`], [`SliceArg`], and [`SliceInfo`](crate::SliceInfo).
@@ -916,7 +916,7 @@ where
 
     /// Collapses the array to `index` along the axis and removes the axis.
     ///
-    /// See [`.index_axis()`](#method.index_axis) and [*Subviews*](#subviews) for full documentation.
+    /// See [`.index_axis()`](Self::index_axis) and [*Subviews*](#subviews) for full documentation.
     ///
     /// **Panics** if `axis` or `index` is out of bounds.
     pub fn index_axis_move(mut self, axis: Axis, index: usize) -> ArrayBase<S, D::Smaller>

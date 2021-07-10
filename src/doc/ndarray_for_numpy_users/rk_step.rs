@@ -120,10 +120,10 @@
 //! * Don't return a newly allocated `f_new` array. If the caller wants this
 //!   information, they can get it from the last row of `k`.
 //!
-//! * Use [`c.mul_add(h, t)`][f64.mul_add()] instead of `t + c * h`. This is
+//! * Use [`c.mul_add(h, t)`](f64::mul_add) instead of `t + c * h`. This is
 //!   faster and reduces the floating-point error. It might also be beneficial
-//!   to use [`.scaled_add()`][.scaled_add()] or a combination of
-//!   [`azip!()`][azip!] and [`.mul_add()`][f64.mul_add()] on the arrays in
+//!   to use [`.scaled_add()`] or a combination of
+//!   [`azip!()`] and [`.mul_add()`](f64::mul_add) on the arrays in
 //!   some places, but that's not demonstrated in the example below.
 //!
 //! ```
@@ -168,9 +168,7 @@
 //! # fn main() { let _ = rk_step::<fn(_, ArrayView1<'_, f64>, ArrayViewMut1<'_, f64>)>; }
 //! ```
 //!
-//! [f64.mul_add()]: https://doc.rust-lang.org/std/primitive.f64.html#method.mul_add
-//! [.scaled_add()]: ../../../struct.ArrayBase.html#method.scaled_add
-//! [azip!]: ../../../macro.azip.html
+//! [`.scaled_add()`]: crate::ArrayBase::scaled_add
 //!
 //! ### SciPy license
 //!

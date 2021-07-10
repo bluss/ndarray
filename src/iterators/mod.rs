@@ -315,7 +315,7 @@ pub enum ElementsRepr<S, C> {
 ///
 /// Iterator element type is `&'a A`.
 ///
-/// See [`.iter()`](../struct.ArrayBase.html#method.iter) for more information.
+/// See [`.iter()`](ArrayBase::iter) for more information.
 pub struct Iter<'a, A, D> {
     inner: ElementsRepr<SliceIter<'a, A>, ElementsBase<'a, A, D>>,
 }
@@ -330,7 +330,7 @@ pub struct ElementsBase<'a, A, D> {
 ///
 /// Iterator element type is `&'a mut A`.
 ///
-/// See [`.iter_mut()`](../struct.ArrayBase.html#method.iter_mut) for more information.
+/// See [`.iter_mut()`](ArrayBase::iter_mut) for more information.
 pub struct IterMut<'a, A, D> {
     inner: ElementsRepr<SliceIterMut<'a, A>, ElementsBaseMut<'a, A, D>>,
 }
@@ -354,12 +354,12 @@ impl<'a, A, D: Dimension> ElementsBaseMut<'a, A, D> {
 
 /// An iterator over the indexes and elements of an array.
 ///
-/// See [`.indexed_iter()`](../struct.ArrayBase.html#method.indexed_iter) for more information.
+/// See [`.indexed_iter()`](ArrayBase::indexed_iter) for more information.
 #[derive(Clone)]
 pub struct IndexedIter<'a, A, D>(ElementsBase<'a, A, D>);
 /// An iterator over the indexes and elements of an array (mutable).
 ///
-/// See [`.indexed_iter_mut()`](../struct.ArrayBase.html#method.indexed_iter_mut) for more information.
+/// See [`.indexed_iter_mut()`](ArrayBase::indexed_iter_mut) for more information.
 pub struct IndexedIterMut<'a, A, D>(ElementsBaseMut<'a, A, D>);
 
 impl<'a, A, D> IndexedIter<'a, A, D>
@@ -681,7 +681,7 @@ where
 /// An iterator that traverses over all axes but one, and yields a view for
 /// each lane along that axis.
 ///
-/// See [`.lanes()`](../struct.ArrayBase.html#method.lanes) for more information.
+/// See [`.lanes()`](ArrayBase::lanes) for more information.
 pub struct LanesIter<'a, A, D> {
     inner_len: Ix,
     inner_stride: Ixs,
@@ -732,7 +732,7 @@ where
 /// An iterator that traverses over all dimensions but the innermost,
 /// and yields each inner row (mutable).
 ///
-/// See [`.lanes_mut()`](../struct.ArrayBase.html#method.lanes_mut)
+/// See [`.lanes_mut()`](ArrayBase::lanes_mut)
 /// for more information.
 pub struct LanesIterMut<'a, A, D> {
     inner_len: Ix,
@@ -927,8 +927,8 @@ where
 ///
 /// Iterator element type is `ArrayView<'a, A, D>`.
 ///
-/// See [`.outer_iter()`](../struct.ArrayBase.html#method.outer_iter)
-/// or [`.axis_iter()`](../struct.ArrayBase.html#method.axis_iter)
+/// See [`.outer_iter()`](ArrayBase::outer_iter)
+/// or [`.axis_iter()`](ArrayBase::axis_iter)
 /// for more information.
 #[derive(Debug)]
 pub struct AxisIter<'a, A, D> {
@@ -1024,8 +1024,8 @@ where
 ///
 /// Iterator element type is `ArrayViewMut<'a, A, D>`.
 ///
-/// See [`.outer_iter_mut()`](../struct.ArrayBase.html#method.outer_iter_mut)
-/// or [`.axis_iter_mut()`](../struct.ArrayBase.html#method.axis_iter_mut)
+/// See [`.outer_iter_mut()`](ArrayBase::outer_iter_mut)
+/// or [`.axis_iter_mut()`](ArrayBase::axis_iter_mut)
 /// for more information.
 pub struct AxisIterMut<'a, A, D> {
     iter: AxisIterCore<A, D>,
@@ -1222,7 +1222,7 @@ impl<'a, A, D: Dimension> NdProducer for AxisIterMut<'a, A, D> {
 ///
 /// Iterator element type is `ArrayView<'a, A, D>`.
 ///
-/// See [`.axis_chunks_iter()`](../struct.ArrayBase.html#method.axis_chunks_iter) for more information.
+/// See [`.axis_chunks_iter()`](ArrayBase::axis_chunks_iter) for more information.
 pub struct AxisChunksIter<'a, A, D> {
     iter: AxisIterCore<A, D>,
     /// Index of the partial chunk (the chunk smaller than the specified chunk
@@ -1401,7 +1401,7 @@ macro_rules! chunk_iter_impl {
 ///
 /// Iterator element type is `ArrayViewMut<'a, A, D>`.
 ///
-/// See [`.axis_chunks_iter_mut()`](../struct.ArrayBase.html#method.axis_chunks_iter_mut)
+/// See [`.axis_chunks_iter_mut()`](ArrayBase::axis_chunks_iter_mut)
 /// for more information.
 pub struct AxisChunksIterMut<'a, A, D> {
     iter: AxisIterCore<A, D>,

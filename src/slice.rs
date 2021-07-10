@@ -20,7 +20,7 @@ use std::ops::{Deref, Range, RangeFrom, RangeFull, RangeInclusive, RangeTo, Rang
 /// from the back of the axis. If `end` is `None`, the slice extends to the end
 /// of the axis.
 ///
-/// See also the [`s![]`](macro.s.html) macro.
+/// See also the [`s![]`](s!) macro.
 ///
 /// ## Examples
 ///
@@ -75,13 +75,13 @@ impl Slice {
 
 /// Token to represent a new axis in a slice description.
 ///
-/// See also the [`s![]`](macro.s!.html) macro.
+/// See also the [`s![]`](s!) macro.
 #[derive(Clone, Copy, Debug)]
 pub struct NewAxis;
 
 /// A slice (range with step), an index, or a new axis token.
 ///
-/// See also the [`s![]`](macro.s!.html) macro for a convenient way to create a
+/// See also the [`s![]`](s!) macro for a convenient way to create a
 /// `SliceInfo<[SliceInfoElem; n], Din, Dout>`.
 ///
 /// ## Examples
@@ -397,7 +397,7 @@ unsafe impl SliceArg<IxDyn> for [SliceInfoElem] {
 /// `SliceInfo` instance can still be used to slice an array with dimension
 /// `IxDyn` as long as the number of axes matches.
 ///
-/// [`.slice()`]: struct.ArrayBase.html#method.slice
+/// [`.slice()`]: crate::ArrayBase::slice
 #[derive(Debug)]
 pub struct SliceInfo<T, Din: Dimension, Dout: Dimension> {
     in_dim: PhantomData<Din>,
@@ -486,7 +486,7 @@ where
     }
 
     /// Returns the number of dimensions of the input array for
-    /// [`.slice()`](struct.ArrayBase.html#method.slice).
+    /// [`.slice()`](crate::ArrayBase::slice).
     ///
     /// If `Din` is a fixed-size dimension type, then this is equivalent to
     /// `Din::NDIM.unwrap()`. Otherwise, the value is calculated by iterating
@@ -500,7 +500,7 @@ where
     }
 
     /// Returns the number of dimensions after calling
-    /// [`.slice()`](struct.ArrayBase.html#method.slice) (including taking
+    /// [`.slice()`](crate::ArrayBase::slice) (including taking
     /// subviews).
     ///
     /// If `Dout` is a fixed-size dimension type, then this is equivalent to
@@ -703,9 +703,6 @@ impl_slicenextdim!((), NewAxis, Ix0, Ix1);
 /// * *new-axis*: a [`NewAxis`] instance that represents the creation of a new axis.
 ///   (Except for [`.slice_collapse()`], which panics on [`NewAxis`] elements.)
 ///
-/// [`Slice`]: struct.Slice.html
-/// [`NewAxis`]: struct.NewAxis.html
-///
 /// The number of *elem*, not including *new-axis*, must match the
 /// number of axes in the array. *index*, *range*, *slice*, *step*, and
 /// *new-axis* can be expressions. *index* must be of type `isize`, `usize`, or
@@ -722,12 +719,12 @@ impl_slicenextdim!((), NewAxis, Ix0, Ix1);
 /// panic. Without the `NewAxis`, i.e. `s![0..4;2, 6, 1..5]`,
 /// [`.slice_collapse()`] would result in an array of shape `[2, 1, 4]`.
 ///
-/// [`.slice()`]: struct.ArrayBase.html#method.slice
-/// [`.slice_mut()`]: struct.ArrayBase.html#method.slice_mut
-/// [`.slice_move()`]: struct.ArrayBase.html#method.slice_move
-/// [`.slice_collapse()`]: struct.ArrayBase.html#method.slice_collapse
+/// [`.slice()`]: crate::ArrayBase::slice
+/// [`.slice_mut()`]: crate::ArrayBase::slice_mut
+/// [`.slice_move()`]: crate::ArrayBase::slice_move
+/// [`.slice_collapse()`]: crate::ArrayBase::slice_collapse
 ///
-/// See also [*Slicing*](struct.ArrayBase.html#slicing).
+/// See also [*Slicing*](crate::ArrayBase#slicing).
 ///
 /// # Example
 ///

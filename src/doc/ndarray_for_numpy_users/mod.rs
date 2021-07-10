@@ -23,7 +23,7 @@
 //!
 //! # Similarities
 //!
-//! `ndarray`'s array type ([`ArrayBase`][ArrayBase]), is very similar to
+//! `ndarray`'s array type ([`ArrayBase`]), is very similar to
 //! NumPy's array type (`numpy.ndarray`):
 //!
 //! * Arrays have a single element type.
@@ -70,12 +70,12 @@
 //! </td>
 //! <td>
 //!
-//! In `ndarray`, all arrays are instances of [`ArrayBase`][ArrayBase], but
-//! `ArrayBase` is generic over the ownership of the data. [`Array`][Array]
-//! owns its data; [`ArrayView`][ArrayView] is a view;
-//! [`ArrayViewMut`][ArrayViewMut] is a mutable view; [`CowArray`][CowArray]
+//! In `ndarray`, all arrays are instances of [`ArrayBase`], but
+//! `ArrayBase` is generic over the ownership of the data. [`Array`]
+//! owns its data; [`ArrayView`] is a view;
+//! [`ArrayViewMut`] is a mutable view; [`CowArray`]
 //! either owns its data or is a view (with copy-on-write mutation of the view
-//! variant); and [`ArcArray`][ArcArray] has a reference-counted pointer to its
+//! variant); and [`ArcArray`] has a reference-counted pointer to its
 //! data (with copy-on-write mutation). Arrays and views follow Rust's aliasing
 //! rules.
 //!
@@ -91,7 +91,7 @@
 //! <td>
 //!
 //! In `ndarray`, you can create fixed-dimension arrays, such as
-//! [`Array2`][Array2]. This takes advantage of the type system to help you
+//! [`Array2`]. This takes advantage of the type system to help you
 //! write correct code and also avoids small heap allocations for the shape and
 //! strides.
 //!
@@ -263,7 +263,7 @@
 //! Note that [`a.shape()`][.shape()], [`a.dim()`][.dim()], and
 //! [`a.raw_dim()`][.raw_dim()] all return the shape of the array, but as
 //! different types. `a.shape()` returns the shape as `&[Ix]`, (where
-//! [`Ix`][Ix] is `usize`) which is useful for general operations on the shape.
+//! [`Ix`] is `usize`) which is useful for general operations on the shape.
 //! `a.dim()` returns the shape as `D::Pattern`, which is useful for
 //! pattern-matching shapes. `a.raw_dim()` returns the shape as `D`, which is
 //! useful for creating other arrays of the same shape.
@@ -376,7 +376,7 @@
 //!
 //! </td><td>
 //!
-//! [`a * b`, `a + b`, etc.](../../struct.ArrayBase.html#arithmetic-operations)
+//! [`a * b`, `a + b`, etc.](ArrayBase#arithmetic-operations)
 //!
 //! </td><td>
 //!
@@ -540,17 +540,17 @@
 //! ## Iteration
 //!
 //! `ndarray` has lots of interesting iterators/producers that implement the
-//! [`NdProducer`][NdProducer] trait, which is a generalization of `Iterator`
+//! [`NdProducer`](crate::NdProducer) trait, which is a generalization of `Iterator`
 //! to multiple dimensions. This makes it possible to correctly and efficiently
 //! zip together slices/subviews of arrays in multiple dimensions with
-//! [`Zip`][Zip] or [`azip!()`][azip!]. The purpose of this is similar to
+//! [`Zip`] or [`azip!()`]. The purpose of this is similar to
 //! [`np.nditer`](https://docs.scipy.org/doc/numpy/reference/generated/numpy.nditer.html),
-//! but [`Zip`][Zip] is implemented and used somewhat differently.
+//! but [`Zip`] is implemented and used somewhat differently.
 //!
 //! This table lists some of the iterators/producers which have a direct
 //! equivalent in NumPy. For a more complete introduction to producers and
 //! iterators, see [*Loops, Producers, and
-//! Iterators*](../../struct.ArrayBase.html#loops-producers-and-iterators).
+//! Iterators*](ArrayBase#loops-producers-and-iterators).
 //! Note that there are also variants of these iterators (with a `_mut` suffix)
 //! that yield `ArrayViewMut` instead of `ArrayView`.
 //!
@@ -570,88 +570,77 @@
 //! `a[:,4]` | [`a.column(4)`][.column()] or [`a.column_mut(4)`][.column_mut()] | view (or mutable view) of column 4 in a 2-D array
 //! `a.shape[0] == a.shape[1]` | [`a.is_square()`][.is_square()] | check if the array is square
 //!
-//! [.abs_diff_eq()]: ../../struct.ArrayBase.html#impl-AbsDiffEq<ArrayBase<S2%2C%20D>>
-//! [ArcArray]: ../../type.ArcArray.html
-//! [arr2()]: ../../fn.arr2.html
-//! [array!]: ../../macro.array.html
-//! [Array]: ../../type.Array.html
-//! [Array2]: ../../type.Array2.html
-//! [ArrayBase]: ../../struct.ArrayBase.html
-//! [ArrayView]: ../../type.ArrayView.html
-//! [ArrayViewMut]: ../../type.ArrayViewMut.html
-//! [.assign()]: ../../struct.ArrayBase.html#method.assign
-//! [.axis_iter()]: ../../struct.ArrayBase.html#method.axis_iter
-//! [azip!]: ../../macro.azip.html
-//! [.ncols()]: ../../struct.ArrayBase.html#method.ncols
-//! [.column()]: ../../struct.ArrayBase.html#method.column
-//! [.column_mut()]: ../../struct.ArrayBase.html#method.column_mut
-//! [concatenate!]: ../../macro.concatenate.html
-//! [concatenate()]: ../../fn.concatenate.html
-//! [CowArray]: ../../type.CowArray.html
-//! [::default()]: ../../struct.ArrayBase.html#method.default
-//! [.diag()]: ../../struct.ArrayBase.html#method.diag
-//! [.dim()]: ../../struct.ArrayBase.html#method.dim
-//! [::eye()]: ../../struct.ArrayBase.html#method.eye
-//! [.fill()]: ../../struct.ArrayBase.html#method.fill
-//! [.fold()]: ../../struct.ArrayBase.html#method.fold
-//! [.fold_axis()]: ../../struct.ArrayBase.html#method.fold_axis
-//! [::from_elem()]: ../../struct.ArrayBase.html#method.from_elem
-//! [::from_iter()]: ../../struct.ArrayBase.html#method.from_iter
-//! [::from_diag()]: ../../struct.ArrayBase.html#method.from_diag
-//! [::from_shape_fn()]: ../../struct.ArrayBase.html#method.from_shape_fn
-//! [::from_shape_vec()]: ../../struct.ArrayBase.html#method.from_shape_vec
-//! [::from_shape_vec_unchecked()]: ../../struct.ArrayBase.html#method.from_shape_vec_unchecked
-//! [::from_vec()]: ../../struct.ArrayBase.html#method.from_vec
-//! [.index()]: ../../struct.ArrayBase.html#impl-Index<I>
-//! [.indexed_iter()]: ../../struct.ArrayBase.html#method.indexed_iter
-//! [.insert_axis()]: ../../struct.ArrayBase.html#method.insert_axis
-//! [.is_empty()]: ../../struct.ArrayBase.html#method.is_empty
-//! [.is_square()]: ../../struct.ArrayBase.html#method.is_square
-//! [.iter()]: ../../struct.ArrayBase.html#method.iter
-//! [Ix]: ../../type.Ix.html
-//! [.len()]: ../../struct.ArrayBase.html#method.len
-//! [.len_of()]: ../../struct.ArrayBase.html#method.len_of
-//! [::linspace()]: ../../struct.ArrayBase.html#method.linspace
-//! [::logspace()]: ../../struct.ArrayBase.html#method.logspace
-//! [::geomspace()]: ../../struct.ArrayBase.html#method.geomspace
-//! [.map()]: ../../struct.ArrayBase.html#method.map
-//! [.map_axis()]: ../../struct.ArrayBase.html#method.map_axis
-//! [.map_inplace()]: ../../struct.ArrayBase.html#method.map_inplace
-//! [.mapv()]: ../../struct.ArrayBase.html#method.mapv
-//! [.mapv_inplace()]: ../../struct.ArrayBase.html#method.mapv_inplace
-//! [.mapv_into()]: ../../struct.ArrayBase.html#method.mapv_into
-//! [matrix-* dot]: ../../struct.ArrayBase.html#method.dot-1
-//! [.mean()]: ../../struct.ArrayBase.html#method.mean
-//! [.mean_axis()]: ../../struct.ArrayBase.html#method.mean_axis
-//! [.ndim()]: ../../struct.ArrayBase.html#method.ndim
-//! [NdProducer]: ../../trait.NdProducer.html
-//! [::ones()]: ../../struct.ArrayBase.html#method.ones
-//! [.outer_iter()]: ../../struct.ArrayBase.html#method.outer_iter
-//! [::range()]: ../../struct.ArrayBase.html#method.range
-//! [.raw_dim()]: ../../struct.ArrayBase.html#method.raw_dim
-//! [.reversed_axes()]: ../../struct.ArrayBase.html#method.reversed_axes
-//! [.row()]: ../../struct.ArrayBase.html#method.row
-//! [.row_mut()]: ../../struct.ArrayBase.html#method.row_mut
-//! [.nrows()]: ../../struct.ArrayBase.html#method.nrows
-//! [s!]: ../../macro.s.html
-//! [.sum()]: ../../struct.ArrayBase.html#method.sum
-//! [.slice()]: ../../struct.ArrayBase.html#method.slice
-//! [.slice_axis()]: ../../struct.ArrayBase.html#method.slice_axis
-//! [.slice_collapse()]: ../../struct.ArrayBase.html#method.slice_collapse
-//! [.slice_move()]: ../../struct.ArrayBase.html#method.slice_move
-//! [.slice_mut()]: ../../struct.ArrayBase.html#method.slice_mut
-//! [.shape()]: ../../struct.ArrayBase.html#method.shape
-//! [stack!]: ../../macro.stack.html
-//! [stack()]: ../../fn.stack.html
-//! [.strides()]: ../../struct.ArrayBase.html#method.strides
-//! [.index_axis()]: ../../struct.ArrayBase.html#method.index_axis
-//! [.sum_axis()]: ../../struct.ArrayBase.html#method.sum_axis
-//! [.t()]: ../../struct.ArrayBase.html#method.t
-//! [vec-* dot]: ../../struct.ArrayBase.html#method.dot
-//! [.for_each()]: ../../struct.ArrayBase.html#method.for_each
-//! [::zeros()]: ../../struct.ArrayBase.html#method.zeros
-//! [Zip]: ../../struct.Zip.html
+//! [.abs_diff_eq()]: ArrayBase#impl-AbsDiffEq<ArrayBase<S2%2C%20D>>
+//! [.assign()]: ArrayBase::assign
+//! [.axis_iter()]: ArrayBase::axis_iter
+//! [.ncols()]: ArrayBase::ncols
+//! [.column()]: ArrayBase::column
+//! [.column_mut()]: ArrayBase::column_mut
+//! [concatenate()]: crate::concatenate()
+//! [::default()]: ArrayBase::default
+//! [.diag()]: ArrayBase::diag
+//! [.dim()]: ArrayBase::dim
+//! [::eye()]: ArrayBase::eye
+//! [.fill()]: ArrayBase::fill
+//! [.fold()]: ArrayBase::fold
+//! [.fold_axis()]: ArrayBase::fold_axis
+//! [::from_elem()]: ArrayBase::from_elem
+//! [::from_iter()]: ArrayBase::from_iter
+//! [::from_diag()]: ArrayBase::from_diag
+//! [::from_shape_fn()]: ArrayBase::from_shape_fn
+//! [::from_shape_vec()]: ArrayBase::from_shape_vec
+//! [::from_shape_vec_unchecked()]: ArrayBase::from_shape_vec_unchecked
+//! [::from_vec()]: ArrayBase::from_vec
+//! [.index()]: ArrayBase#impl-Index<I>
+//! [.indexed_iter()]: ArrayBase::indexed_iter
+//! [.insert_axis()]: ArrayBase::insert_axis
+//! [.is_empty()]: ArrayBase::is_empty
+//! [.is_square()]: ArrayBase::is_square
+//! [.iter()]: ArrayBase::iter
+//! [.len()]: ArrayBase::len
+//! [.len_of()]: ArrayBase::len_of
+//! [::linspace()]: ArrayBase::linspace
+//! [::logspace()]: ArrayBase::logspace
+//! [::geomspace()]: ArrayBase::geomspace
+//! [.map()]: ArrayBase::map
+//! [.map_axis()]: ArrayBase::map_axis
+//! [.map_inplace()]: ArrayBase::map_inplace
+//! [.mapv()]: ArrayBase::mapv
+//! [.mapv_inplace()]: ArrayBase::mapv_inplace
+//! [.mapv_into()]: ArrayBase::mapv_into
+//! [matrix-* dot]: ArrayBase::dot-1
+//! [.mean()]: ArrayBase::mean
+//! [.mean_axis()]: ArrayBase::mean_axis
+//! [.ndim()]: ArrayBase::ndim
+//! [::ones()]: ArrayBase::ones
+//! [.outer_iter()]: ArrayBase::outer_iter
+//! [::range()]: ArrayBase::range
+//! [.raw_dim()]: ArrayBase::raw_dim
+//! [.reversed_axes()]: ArrayBase::reversed_axes
+//! [.row()]: ArrayBase::row
+//! [.row_mut()]: ArrayBase::row_mut
+//! [.nrows()]: ArrayBase::nrows
+//! [.sum()]: ArrayBase::sum
+//! [.slice()]: ArrayBase::slice
+//! [.slice_axis()]: ArrayBase::slice_axis
+//! [.slice_collapse()]: ArrayBase::slice_collapse
+//! [.slice_move()]: ArrayBase::slice_move
+//! [.slice_mut()]: ArrayBase::slice_mut
+//! [.shape()]: ArrayBase::shape
+//! [stack()]: crate::stack()
+//! [.strides()]: ArrayBase::strides
+//! [.index_axis()]: ArrayBase::index_axis
+//! [.sum_axis()]: ArrayBase::sum_axis
+//! [.t()]: ArrayBase::t
+//! [vec-* dot]: ArrayBase::dot
+//! [.for_each()]: ArrayBase::for_each
+//! [::zeros()]: ArrayBase::zeros
+//! [`Zip`]: crate::Zip
 
 pub mod coord_transform;
 pub mod rk_step;
 pub mod simple_math;
+
+// This is to avoid putting `crate::` everywhere
+#[allow(unused_imports)]
+use crate::imp_prelude::*;

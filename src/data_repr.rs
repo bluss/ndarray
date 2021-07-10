@@ -11,7 +11,7 @@ use rawpointer::PointerExt;
 /// Array's representation.
 ///
 /// *Don’t use this type directly—use the type alias
-/// [`Array`](type.Array.html) for the array type!*
+/// [`Array`](crate::Array) for the array type!*
 // Like a Vec, but with non-unique ownership semantics
 //
 // repr(C) to make it transmutable OwnedRepr<A> -> OwnedRepr<B> if

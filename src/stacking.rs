@@ -178,10 +178,8 @@ where
 
 /// Stack arrays along the new axis.
 ///
-/// Uses the [`stack`][1] function, calling `ArrayView::from(&a)` on each
+/// Uses the [`stack()`] function, calling `ArrayView::from(&a)` on each
 /// argument `a`.
-///
-/// [1]: fn.stack.html
 ///
 /// ***Panics*** if the `stack` function would return an error.
 ///
@@ -212,10 +210,8 @@ macro_rules! stack {
 
 /// Concatenate arrays along the given axis.
 ///
-/// Uses the [`concatenate`][1] function, calling `ArrayView::from(&a)` on each
+/// Uses the [`concatenate()`] function, calling `ArrayView::from(&a)` on each
 /// argument `a`.
-///
-/// [1]: fn.concatenate.html
 ///
 /// ***Panics*** if the `concatenate` function would return an error.
 ///
@@ -246,10 +242,8 @@ macro_rules! concatenate {
 
 /// Stack arrays along the new axis.
 ///
-/// Uses the [`stack_new_axis`][1] function, calling `ArrayView::from(&a)` on each
+/// Uses the [`stack_new_axis()`] function, calling `ArrayView::from(&a)` on each
 /// argument `a`.
-///
-/// [1]: fn.stack_new_axis.html
 ///
 /// ***Panics*** if the `stack` function would return an error.
 ///

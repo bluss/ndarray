@@ -14,7 +14,7 @@ use alloc::vec::Vec;
 use crate::imp_prelude::*;
 use crate::{dimension, ArcArray1, ArcArray2};
 
-/// Create an [**`Array`**](type.Array.html) with one, two or
+/// Create an **[`Array`]** with one, two or
 /// three dimensions.
 ///
 /// ```

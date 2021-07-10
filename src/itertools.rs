@@ -64,10 +64,8 @@ where
 /// The special cases of one and two arguments produce the equivalent of
 /// `$a.into_iter()` and `$a.into_iter().zip($b)` respectively.
 ///
-/// Prefer this macro `izip!()` over [`multizip`] for the performance benefits
+/// Prefer this macro `izip!()` over `multizip` for the performance benefits
 /// of using the standard library `.zip()`.
-///
-/// [`multizip`]: fn.multizip.html
 ///
 /// ```
 /// #[macro_use] extern crate itertools;

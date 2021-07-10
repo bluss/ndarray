@@ -4,7 +4,7 @@
 //! implementation structs.
 //!
 //!
-//! See also [`NdProducer`](../trait.NdProducer.html).
+//! See also [`NdProducer`](crate::NdProducer).
 
 pub use crate::dimension::Axes;
 pub use crate::indexes::{Indices, IndicesIter};

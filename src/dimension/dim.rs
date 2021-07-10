@@ -18,7 +18,7 @@ use crate::Ix;
 /// `Dim` describes the number of axes and the length of each axis
 /// in an array. It is also used as an index type.
 ///
-/// See also the [`Dimension` trait](trait.Dimension.html) for its methods and
+/// See also the [`Dimension`] trait for its methods and
 /// operations.
 ///
 /// # Examples

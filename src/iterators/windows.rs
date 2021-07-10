@@ -6,7 +6,7 @@ use crate::NdProducer;
 
 /// Window producer and iterable
 ///
-/// See [`.windows()`](../struct.ArrayBase.html#method.windows) for more
+/// See [`.windows()`](ArrayBase::windows) for more
 /// information.
 pub struct Windows<'a, A, D> {
     base: ArrayView<'a, A, D>,
@@ -86,7 +86,7 @@ where
 
 /// Window iterator.
 ///
-/// See [`.windows()`](../struct.ArrayBase.html#method.windows) for more
+/// See [`.windows()`](ArrayBase::windows) for more
 /// information.
 pub struct WindowsIter<'a, A, D> {
     iter: ElementsBase<'a, A, D>,

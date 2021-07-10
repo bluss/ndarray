@@ -36,8 +36,8 @@ where
 /// for example an array view, mutable array view or an iterator
 /// that yields chunks.
 ///
-/// Producers are used as a arguments to [`Zip`](struct.Zip.html) and
-/// [`azip!()`](macro.azip.html).
+/// Producers are used as a arguments to [`Zip`](crate::Zip) and
+/// [`azip!()`].
 ///
 /// # Comparison to `IntoIterator`
 ///
@@ -51,7 +51,7 @@ where
 /// (`AxisIter` traverses a one dimensional sequence, along an axis, while
 /// *producing* multidimensional items).
 ///
-/// See also [`IntoNdProducer`](trait.IntoNdProducer.html)
+/// See also [`IntoNdProducer`]
 pub trait NdProducer {
     /// The element produced per iteration.
     type Item;

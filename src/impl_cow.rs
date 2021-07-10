@@ -11,8 +11,6 @@ use crate::imp_prelude::*;
 /// Methods specific to `CowArray`.
 ///
 /// ***See also all methods for [`ArrayBase`]***
-///
-/// [`ArrayBase`]: struct.ArrayBase.html
 impl<'a, A, D> CowArray<'a, A, D>
 where
     D: Dimension,

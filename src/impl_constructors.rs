@@ -269,7 +269,7 @@ macro_rules! size_of_shape_checked_unwrap {
 /// column major (“f” order) memory layout instead of the default row major.
 /// For example `Array::zeros((5, 6).f())` makes a column major 5 × 6 array.
 ///
-/// Use [`IxDyn`](type.IxDyn.html) for the shape to create an array with dynamic
+/// Use [`type@IxDyn`] for the shape to create an array with dynamic
 /// number of axes.
 ///
 /// Finally, the few constructors that take a completely general

@@ -59,7 +59,7 @@ pub trait IndexLonger<I> {
     /// See also [the `get` method][1] which works for all arrays and array
     /// views.
     ///
-    /// [1]: struct.ArrayBase.html#method.get
+    /// [1]: ArrayBase::get
     ///
     /// **Panics** if index is out of bounds.
     fn index(self, index: I) -> Self::Output;
@@ -73,8 +73,8 @@ pub trait IndexLonger<I> {
     /// See also [the `get` method][1] (and [`get_mut`][2]) which works for all arrays and array
     /// views.
     ///
-    /// [1]: struct.ArrayBase.html#method.get
-    /// [2]: struct.ArrayBase.html#method.get_mut
+    /// [1]: ArrayBase::get
+    /// [2]: ArrayBase::get_mut
     ///
     /// **Panics** if index is out of bounds.
     fn get(self, index: I) -> Option<Self::Output>;
@@ -87,7 +87,7 @@ pub trait IndexLonger<I> {
     /// See also [the `uget` method][1] which works for all arrays and array
     /// views.
     ///
-    /// [1]: struct.ArrayBase.html#method.uget
+    /// [1]: ArrayBase::uget
     ///
     /// **Note:** only unchecked for non-debug builds of ndarray.
     ///
@@ -113,7 +113,7 @@ where
     /// See also [the `get` method][1] which works for all arrays and array
     /// views.
     ///
-    /// [1]: struct.ArrayBase.html#method.get
+    /// [1]: ArrayBase::get
     ///
     /// **Panics** if index is out of bounds.
     fn index(self, index: I) -> &'a A {
@@ -133,7 +133,7 @@ where
     /// See also [the `uget` method][1] which works for all arrays and array
     /// views.
     ///
-    /// [1]: struct.ArrayBase.html#method.uget
+    /// [1]: ArrayBase::uget
     ///
     /// **Note:** only unchecked for non-debug builds of ndarray.
     unsafe fn uget(self, index: I) -> &'a A {
@@ -158,7 +158,7 @@ where
     /// See also [the `get_mut` method][1] which works for all arrays and array
     /// views.
     ///
-    /// [1]: struct.ArrayBase.html#method.get_mut
+    /// [1]: ArrayBase::get_mut
     ///
     /// **Panics** if index is out of bounds.
     fn index(mut self, index: I) -> &'a mut A {
@@ -177,7 +177,7 @@ where
     /// See also [the `get_mut` method][1] which works for all arrays and array
     /// views.
     ///
-    /// [1]: struct.ArrayBase.html#method.get_mut
+    /// [1]: ArrayBase::get_mut
     ///
     fn get(mut self, index: I) -> Option<&'a mut A> {
         debug_bounds_check!(self, index);
@@ -195,7 +195,7 @@ where
     /// See also [the `uget_mut` method][1] which works for all arrays and array
     /// views.
     ///
-    /// [1]: struct.ArrayBase.html#method.uget_mut
+    /// [1]: ArrayBase::uget_mut
     ///
     /// **Note:** only unchecked for non-debug builds of ndarray.
     unsafe fn uget(mut self, index: I) -> &'a mut A {

@@ -37,9 +37,7 @@ macro_rules! fold_while {
 
 /// Broadcast an array so that it acts like a larger size and/or shape array.
 ///
-/// See [broadcasting][1] for more information.
-///
-/// [1]: struct.ArrayBase.html#broadcasting
+/// See [broadcasting](ArrayBase#broadcasting) for more information.
 trait Broadcast<E>
 where
     E: IntoDimension,
@@ -120,7 +118,7 @@ trait ZippableTuple: Sized {
 /// a time).
 ///
 /// In general, the zip uses a tuple of producers
-/// ([`NdProducer`](trait.NdProducer.html) trait) that all have to be of the
+/// ([`NdProducer`] trait) that all have to be of the
 /// same shape. The NdProducer implementation defines what its item type is
 /// (for example if it's a shared reference, mutable reference or an array
 /// view etc).
@@ -135,10 +133,8 @@ trait ZippableTuple: Sized {
 /// `fold_while`. The zip object can be split, which allows parallelization.
 /// A read-only zip object (no mutable producers) can be cloned.
 ///
-/// See also the [`azip!()` macro][az] which offers a convenient shorthand
+/// See also the [`azip!()`] which offers a convenient shorthand
 /// to common ways to use `Zip`.
-///
-/// [az]: macro.azip.html
 ///
 /// ```
 /// use ndarray::Zip;

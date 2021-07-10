@@ -29,11 +29,11 @@
 //! dimensions, then an element in the array is accessed by using that many indices.
 //! Each dimension is also called an *axis*.
 //!
-//! - **[`ArrayBase`](struct.ArrayBase.html)**:
+//! - **[`ArrayBase`]**:
 //!   The *n*-dimensional array type itself.<br>
 //!   It is used to implement both the owned arrays and the views; see its docs
 //!   for an overview of all array features.<br>
-//! - The main specific array type is **[`Array`](type.Array.html)**, which owns
+//! - The main specific array type is **[`Array`]**, which owns
 //! its elements.
 //!
 //! ## Highlights
@@ -45,8 +45,8 @@
 //! - Higher order operations and arithmetic are performant
 //! - Array views can be used to slice and mutate any `[T]` data using
 //!   `ArrayView::from` and `ArrayViewMut::from`.
-//! - [`Zip`](struct.Zip.html) for lock step function application across two or more arrays or other
-//!   item producers ([`NdProducer`](trait.NdProducer.html) trait).
+//! - [`Zip`] for lock step function application across two or more arrays or other
+//!   item producers ([`NdProducer`] trait).
 //!
 //! ## Crate Status
 //!
@@ -99,13 +99,13 @@
 //!
 //! ## Documentation
 //!
-//! * The docs for [`ArrayBase`](struct.ArrayBase.html) provide an overview of
+//! * The docs for [`ArrayBase`] provide an overview of
 //!   the *n*-dimensional array type. Other good pages to look at are the
-//!   documentation for the [`s![]`](macro.s.html) and
-//!   [`azip!()`](macro.azip.html) macros.
+//!   documentation for the [`s![]`](s!) and
+//!   [`azip!()`](azip!) macros.
 //!
 //! * If you have experience with NumPy, you may also be interested in
-//!   [`ndarray_for_numpy_users`](doc/ndarray_for_numpy_users/index.html).
+//!   [`ndarray_for_numpy_users`](doc::ndarray_for_numpy_users).
 //!
 //! ## The ndarray ecosystem
 //!
@@ -258,12 +258,6 @@ pub type Ixs = isize;
 /// [`ArrayViewMut`] refer to `ArrayBase` with different types for the data
 /// container.
 ///
-/// [`Array`]: type.Array.html
-/// [`ArcArray`]: type.ArcArray.html
-/// [`ArrayView`]: type.ArrayView.html
-/// [`ArrayViewMut`]: type.ArrayViewMut.html
-/// [`CowArray`]: type.CowArray.html
-///
 /// ## Contents
 ///
 /// + [Array](#array)
@@ -286,7 +280,7 @@ pub type Ixs = isize;
 ///
 /// ## `Array`
 ///
-/// [`Array`](type.Array.html) is an owned array that owns the underlying array
+/// [`Array`] is an owned array that owns the underlying array
 /// elements directly (just like a `Vec`) and it is the default way to create and
 /// store n-dimensional data. `Array<A, D>` has two type parameters: `A` for
 /// the element type, and `D` for the dimensionality. A particular
@@ -305,17 +299,16 @@ pub type Ixs = isize;
 ///
 /// ## `ArcArray`
 ///
-/// [`ArcArray`](type.ArcArray.html) is an owned array with reference counted
+/// [`ArcArray`] is an owned array with reference counted
 /// data (shared ownership).
 /// Sharing requires that it uses copy-on-write for mutable operations.
 /// Calling a method for mutating elements on `ArcArray`, for example
-/// [`view_mut()`](#method.view_mut) or [`get_mut()`](#method.get_mut),
+/// [`view_mut()`](Self::view_mut) or [`get_mut()`](Self::get_mut),
 /// will break sharing and require a clone of the data (if it is not uniquely held).
 ///
 /// ## `CowArray`
 ///
-/// [`CowArray`](type.CowArray.html) is analogous to
-/// [`std::borrow::Cow`](https://doc.rust-lang.org/std/borrow/enum.Cow.html).
+/// [`CowArray`] is analogous to [`std::borrow::Cow`].
 /// It can represent either an immutable view or a uniquely owned array. If a
 /// `CowArray` instance is the immutable view variant, then calling a method
 /// for mutating elements in the array will cause it to be converted into the
@@ -380,15 +373,15 @@ pub type Ixs = isize;
 ///
 /// Important traits and types for dimension and indexing:
 ///
-/// - A [`Dim`](struct.Dim.html) value represents a dimensionality or index.
-/// - Trait [`Dimension`](trait.Dimension.html) is implemented by all
+/// - A [`struct@Dim`] value represents a dimensionality or index.
+/// - Trait [`Dimension`] is implemented by all
 /// dimensionalities. It defines many operations for dimensions and indices.
-/// - Trait [`IntoDimension`](trait.IntoDimension.html) is used to convert into a
+/// - Trait [`IntoDimension`] is used to convert into a
 /// `Dim` value.
-/// - Trait [`ShapeBuilder`](trait.ShapeBuilder.html) is an extension of
+/// - Trait [`ShapeBuilder`] is an extension of
 /// `IntoDimension` and is used when constructing an array. A shape describes
 /// not just the extent of each axis but also their strides.
-/// - Trait [`NdIndex`](trait.NdIndex.html) is an extension of `Dimension` and is
+/// - Trait [`NdIndex`] is an extension of `Dimension` and is
 /// for values that can be used with indexing syntax.
 ///
 ///
@@ -403,10 +396,10 @@ pub type Ixs = isize;
 ///
 /// ## Loops, Producers and Iterators
 ///
-/// Using [`Zip`](struct.Zip.html) is the most general way to apply a procedure
+/// Using [`Zip`] is the most general way to apply a procedure
 /// across one or several arrays or *producers*.
 ///
-/// [`NdProducer`](trait.NdProducer.html) is like an iterable but for
+/// [`NdProducer`] is like an iterable but for
 /// multidimensional data. All producers have dimensions and axes, like an
 /// array view, and they can be split and used with parallelization using `Zip`.
 ///
@@ -478,12 +471,12 @@ pub type Ixs = isize;
 /// [`.columns()`][gc], [`.columns_mut()`][gcm],
 /// [`.lanes(axis)`][l], [`.lanes_mut(axis)`][lm].
 ///
-/// [gr]: #method.rows
-/// [grm]: #method.rows_mut
-/// [gc]: #method.columns
-/// [gcm]: #method.columns_mut
-/// [l]: #method.lanes
-/// [lm]: #method.lanes_mut
+/// [gr]: Self::rows
+/// [grm]: Self::rows_mut
+/// [gc]: Self::columns
+/// [gcm]: Self::columns_mut
+/// [l]: Self::lanes
+/// [lm]: Self::lanes_mut
 ///
 /// Yes, for 2D arrays `.rows()` and `.outer_iter()` have about the same
 /// effect:
@@ -497,7 +490,7 @@ pub type Ixs = isize;
 /// the array. Slicing methods include [`.slice()`], [`.slice_mut()`],
 /// [`.slice_move()`], and [`.slice_collapse()`].
 ///
-/// The slicing argument can be passed using the macro [`s![]`](macro.s!.html),
+/// The slicing argument can be passed using the macro [`s![]`](s!),
 /// which will be used in all examples. (The explicit form is an instance of
 /// [`SliceInfo`] or another type which implements [`SliceArg`]; see their docs
 /// for more information.)
@@ -509,11 +502,10 @@ pub type Ixs = isize;
 /// [`.slice_collapse()`] panics on `NewAxis` elements and behaves like
 /// [`.collapse_axis()`] by preserving the number of dimensions.
 ///
-/// [`.slice()`]: #method.slice
-/// [`.slice_mut()`]: #method.slice_mut
-/// [`.slice_move()`]: #method.slice_move
-/// [`.slice_collapse()`]: #method.slice_collapse
-/// [`NewAxis`]: struct.NewAxis.html
+/// [`.slice()`]: Self::slice
+/// [`.slice_mut()`]: Self::slice_mut
+/// [`.slice_move()`]: Self::slice_move
+/// [`.slice_collapse()`]: Self::slice_collapse
 ///
 /// When slicing arrays with generic dimensionality, creating an instance of
 /// [`SliceInfo`] to pass to the multi-axis slicing methods like [`.slice()`]
@@ -522,18 +514,18 @@ pub type Ixs = isize;
 /// or to create a view and then slice individual axes of the view using
 /// methods such as [`.slice_axis_inplace()`] and [`.collapse_axis()`].
 ///
-/// [`.slice_each_axis()`]: #method.slice_each_axis
-/// [`.slice_each_axis_mut()`]: #method.slice_each_axis_mut
-/// [`.slice_each_axis_inplace()`]: #method.slice_each_axis_inplace
-/// [`.slice_axis_inplace()`]: #method.slice_axis_inplace
-/// [`.collapse_axis()`]: #method.collapse_axis
+/// [`.slice_each_axis()`]: Self::slice_each_axis
+/// [`.slice_each_axis_mut()`]: Self::slice_each_axis_mut
+/// [`.slice_each_axis_inplace()`]: Self::slice_each_axis_inplace
+/// [`.slice_axis_inplace()`]: Self::slice_axis_inplace
+/// [`.collapse_axis()`]: Self::collapse_axis
 ///
 /// It's possible to take multiple simultaneous *mutable* slices with
 /// [`.multi_slice_mut()`] or (for [`ArrayViewMut`] only)
 /// [`.multi_slice_move()`].
 ///
-/// [`.multi_slice_mut()`]: #method.multi_slice_mut
-/// [`.multi_slice_move()`]: type.ArrayViewMut.html#method.multi_slice_move
+/// [`.multi_slice_mut()`]: Self::multi_slice_mut
+/// [`.multi_slice_move()`]: ArrayViewMut#method.multi_slice_move
 ///
 /// ```
 /// use ndarray::{arr2, arr3, s, ArrayBase, DataMut, Dimension, NewAxis, Slice};
@@ -631,16 +623,16 @@ pub type Ixs = isize;
 /// Methods for selecting an individual subview take two arguments: `axis` and
 /// `index`.
 ///
-/// [`.axis_iter()`]: #method.axis_iter
-/// [`.axis_iter_mut()`]: #method.axis_iter_mut
-/// [`.fold_axis()`]: #method.fold_axis
-/// [`.index_axis()`]: #method.index_axis
-/// [`.index_axis_inplace()`]: #method.index_axis_inplace
-/// [`.index_axis_mut()`]: #method.index_axis_mut
-/// [`.index_axis_move()`]: #method.index_axis_move
-/// [`.collapse_axis()`]: #method.collapse_axis
-/// [`.outer_iter()`]: #method.outer_iter
-/// [`.outer_iter_mut()`]: #method.outer_iter_mut
+/// [`.axis_iter()`]: Self::axis_iter
+/// [`.axis_iter_mut()`]: Self::axis_iter_mut
+/// [`.fold_axis()`]: Self::fold_axis
+/// [`.index_axis()`]: Self::index_axis
+/// [`.index_axis_inplace()`]: Self::index_axis_inplace
+/// [`.index_axis_mut()`]: Self::index_axis_mut
+/// [`.index_axis_move()`]: Self::index_axis_move
+/// [`.collapse_axis()`]: Self::collapse_axis
+/// [`.outer_iter()`]: Self::outer_iter
+/// [`.outer_iter_mut()`]: Self::outer_iter_mut
 ///
 /// ```
 ///
@@ -723,7 +715,7 @@ pub type Ixs = isize;
 ///
 /// ### Binary Operators with Array and Scalar
 ///
-/// The trait [`ScalarOperand`](trait.ScalarOperand.html) marks types that can be used in arithmetic
+/// The trait [`ScalarOperand`] marks types that can be used in arithmetic
 /// with arrays directly. For a scalar `K` the following combinations of operands
 /// are supported (scalar can be on either the left or right side, but
 /// `ScalarOperand` docs has the detailed condtions).
@@ -746,7 +738,7 @@ pub type Ixs = isize;
 /// Arrays support limited *broadcasting*, where arithmetic operations with
 /// array operands of different sizes can be carried out by repeating the
 /// elements of the smaller dimension array. See
-/// [`.broadcast()`](#method.broadcast) for a more detailed
+/// [`.broadcast()`](Self::broadcast) for a more detailed
 /// description.
 ///
 /// ```
@@ -892,12 +884,12 @@ pub type Ixs = isize;
 /// </td>
 /// <td>
 ///
-/// [`CowArray::from(a)`](type.CowArray.html#impl-From<ArrayBase<OwnedRepr<A>%2C%20D>>)
+/// [`CowArray::from(a)`](CowArray#impl-From<ArrayBase<OwnedRepr<A>%2C%20D>>)
 ///
 /// </td>
 /// <td>
 ///
-/// [`CowArray::from(a.into_owned())`](type.CowArray.html#impl-From<ArrayBase<OwnedRepr<A>%2C%20D>>)
+/// [`CowArray::from(a.into_owned())`](CowArray#impl-From<ArrayBase<OwnedRepr<A>%2C%20D>>)
 ///
 /// </td>
 /// <td>
@@ -907,12 +899,12 @@ pub type Ixs = isize;
 /// </td>
 /// <td>
 ///
-/// [`CowArray::from(a)`](type.CowArray.html#impl-From<ArrayBase<ViewRepr<%26%27a%20A>%2C%20D>>)
+/// [`CowArray::from(a)`](CowArray#impl-From<ArrayBase<ViewRepr<%26%27a%20A>%2C%20D>>)
 ///
 /// </td>
 /// <td>
 ///
-/// [`CowArray::from(a.view())`](type.CowArray.html#impl-From<ArrayBase<ViewRepr<%26%27a%20A>%2C%20D>>)
+/// [`CowArray::from(a.view())`](CowArray#impl-From<ArrayBase<ViewRepr<%26%27a%20A>%2C%20D>>)
 ///
 /// </td>
 /// </tr>
@@ -1041,19 +1033,19 @@ pub type Ixs = isize;
 ///
 /// Input | Output | Methods
 /// ------|--------|--------
-/// `Vec<A>` | `ArrayBase<S: DataOwned, Ix1>` | [`::from_vec()`](#method.from_vec)
-/// `Vec<A>` | `ArrayBase<S: DataOwned, D>` | [`::from_shape_vec()`](#method.from_shape_vec)
-/// `&[A]` | `ArrayView1<A>` | [`::from()`](type.ArrayView.html#method.from)
-/// `&[A]` | `ArrayView<A, D>` | [`::from_shape()`](type.ArrayView.html#method.from_shape)
-/// `&mut [A]` | `ArrayViewMut1<A>` | [`::from()`](type.ArrayViewMut.html#method.from)
-/// `&mut [A]` | `ArrayViewMut<A, D>` | [`::from_shape()`](type.ArrayViewMut.html#method.from_shape)
-/// `&ArrayBase<S, Ix1>` | `Vec<A>` | [`.to_vec()`](#method.to_vec)
-/// `Array<A, D>` | `Vec<A>` | [`.into_raw_vec()`](type.Array.html#method.into_raw_vec)<sup>[1](#into_raw_vec)</sup>
-/// `&ArrayBase<S, D>` | `&[A]` | [`.as_slice()`](#method.as_slice)<sup>[2](#req_contig_std)</sup>, [`.as_slice_memory_order()`](#method.as_slice_memory_order)<sup>[3](#req_contig)</sup>
-/// `&mut ArrayBase<S: DataMut, D>` | `&mut [A]` | [`.as_slice_mut()`](#method.as_slice_mut)<sup>[2](#req_contig_std)</sup>, [`.as_slice_memory_order_mut()`](#method.as_slice_memory_order_mut)<sup>[3](#req_contig)</sup>
-/// `ArrayView<A, D>` | `&[A]` | [`.to_slice()`](type.ArrayView.html#method.to_slice)<sup>[2](#req_contig_std)</sup>
-/// `ArrayViewMut<A, D>` | `&mut [A]` | [`.into_slice()`](type.ArrayViewMut.html#method.into_slice)<sup>[2](#req_contig_std)</sup>
-/// `Array0<A>` | `A` | [`.into_scalar()`](type.Array.html#method.into_scalar)
+/// `Vec<A>` | `ArrayBase<S: DataOwned, Ix1>` | [`::from_vec()`](Self::from_vec)
+/// `Vec<A>` | `ArrayBase<S: DataOwned, D>` | [`::from_shape_vec()`](Self::from_shape_vec)
+/// `&[A]` | `ArrayView1<A>` | [`::from()`](ArrayView#method.from)
+/// `&[A]` | `ArrayView<A, D>` | [`::from_shape()`](ArrayView#method.from_shape)
+/// `&mut [A]` | `ArrayViewMut1<A>` | [`::from()`](ArrayViewMut#method.from)
+/// `&mut [A]` | `ArrayViewMut<A, D>` | [`::from_shape()`](ArrayViewMut#method.from_shape)
+/// `&ArrayBase<S, Ix1>` | `Vec<A>` | [`.to_vec()`](Self::to_vec)
+/// `Array<A, D>` | `Vec<A>` | [`.into_raw_vec()`](Array#method.into_raw_vec)<sup>[1](#into_raw_vec)</sup>
+/// `&ArrayBase<S, D>` | `&[A]` | [`.as_slice()`](Self::as_slice)<sup>[2](#req_contig_std)</sup>, [`.as_slice_memory_order()`](Self::as_slice_memory_order)<sup>[3](#req_contig)</sup>
+/// `&mut ArrayBase<S: DataMut, D>` | `&mut [A]` | [`.as_slice_mut()`](Self::as_slice_mut)<sup>[2](#req_contig_std)</sup>, [`.as_slice_memory_order_mut()`](Self::as_slice_memory_order_mut)<sup>[3](#req_contig)</sup>
+/// `ArrayView<A, D>` | `&[A]` | [`.to_slice()`](ArrayView#method.to_slice)<sup>[2](#req_contig_std)</sup>
+/// `ArrayViewMut<A, D>` | `&mut [A]` | [`.into_slice()`](ArrayViewMut#method.into_slice)<sup>[2](#req_contig_std)</sup>
+/// `Array0<A>` | `A` | [`.into_scalar()`](Array#method.into_scalar)
 ///
 /// <sup><a name="into_raw_vec">1</a></sup>Returns the data in memory order.
 ///
@@ -1066,16 +1058,16 @@ pub type Ixs = isize;
 /// conversions to/from `Vec`s/slices. See
 /// [below](#constructor-methods-for-owned-arrays) for more constructors.
 ///
-/// [ArrayView::reborrow()]: type.ArrayView.html#method.reborrow
-/// [ArrayViewMut::reborrow()]: type.ArrayViewMut.html#method.reborrow
-/// [.into_dimensionality()]: #method.into_dimensionality
-/// [.into_dyn()]: #method.into_dyn
-/// [.into_owned()]: #method.into_owned
-/// [.into_shared()]: #method.into_shared
-/// [.to_owned()]: #method.to_owned
-/// [.map()]: #method.map
-/// [.view()]: #method.view
-/// [.view_mut()]: #method.view_mut
+/// [ArrayView::reborrow()]: ArrayView#method.reborrow
+/// [ArrayViewMut::reborrow()]: ArrayViewMut#method.reborrow
+/// [.into_dimensionality()]: Self::into_dimensionality
+/// [.into_dyn()]: Self::into_dyn
+/// [.into_owned()]: Self::into_owned
+/// [.into_shared()]: Self::into_shared
+/// [.to_owned()]: Self::to_owned
+/// [.map()]: Self::map
+/// [.view()]: Self::view
+/// [.view_mut()]: Self::view_mut
 ///
 /// ### Conversions from Nested `Vec`s/`Array`s
 ///
@@ -1117,7 +1109,7 @@ pub type Ixs = isize;
 /// If you don't know ahead-of-time the shape of the final array, then the
 /// cleanest solution is generally to append the data to a flat `Vec`, and then
 /// convert it to an `Array` at the end with
-/// [`::from_shape_vec()`](#method.from_shape_vec). You just have to be careful
+/// [`::from_shape_vec()`](Self::from_shape_vec). You just have to be careful
 /// that the layout of the data (the order of the elements in the flat `Vec`)
 /// is correct.
 ///
@@ -1140,10 +1132,9 @@ pub type Ixs = isize;
 ///
 /// If neither of these options works for you, and you really need to convert
 /// nested `Vec`/`Array` instances to an `Array`, the cleanest solution is
-/// generally to use
-/// [`Iterator::flatten()`](https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.flatten)
+/// generally to use [`Iterator::flatten()`]
 /// to get a flat `Vec`, and then convert the `Vec` to an `Array` with
-/// [`::from_shape_vec()`](#method.from_shape_vec), like this:
+/// [`::from_shape_vec()`](Self::from_shape_vec), like this:
 ///
 /// ```rust
 /// use ndarray::{array, Array2, Array3};
@@ -1306,20 +1297,20 @@ where
 /// It can act as both an owner as the data as well as a shared reference (view
 /// like).
 /// Calling a method for mutating elements on `ArcArray`, for example
-/// [`view_mut()`](struct.ArrayBase.html#method.view_mut) or
-/// [`get_mut()`](struct.ArrayBase.html#method.get_mut), will break sharing and
+/// [`view_mut()`](ArrayBase::view_mut) or
+/// [`get_mut()`](ArrayBase::get_mut), will break sharing and
 /// require a clone of the data (if it is not uniquely held).
 ///
 /// `ArcArray` uses atomic reference counting like `Arc`, so it is `Send` and
 /// `Sync` (when allowed by the element type of the array too).
 ///
-/// [**`ArrayBase`**](struct.ArrayBase.html) is used to implement both the owned
+/// **[`ArrayBase`]** is used to implement both the owned
 /// arrays and the views; see its docs for an overview of all array features.
 ///
 /// See also:
 ///
-/// + [Constructor Methods for Owned Arrays](struct.ArrayBase.html#constructor-methods-for-owned-arrays)
-/// + [Methods For All Array Types](struct.ArrayBase.html#methods-for-all-array-types)
+/// + [Constructor Methods for Owned Arrays](ArrayBase#constructor-methods-for-owned-arrays)
+/// + [Methods For All Array Types](ArrayBase#methods-for-all-array-types)
 pub type ArcArray<A, D> = ArrayBase<OwnedArcRepr<A>, D>;
 
 /// An array that owns its data uniquely.
@@ -1330,18 +1321,18 @@ pub type ArcArray<A, D> = ArrayBase<OwnedArcRepr<A>, D>;
 /// The `Array<A, D>` is parameterized by `A` for the element type and `D` for
 /// the dimensionality.
 ///
-/// [**`ArrayBase`**](struct.ArrayBase.html) is used to implement both the owned
+/// **[`ArrayBase`]** is used to implement both the owned
 /// arrays and the views; see its docs for an overview of all array features.
 ///
 /// See also:
 ///
-/// + [Constructor Methods for Owned Arrays](struct.ArrayBase.html#constructor-methods-for-owned-arrays)
-/// + [Methods For All Array Types](struct.ArrayBase.html#methods-for-all-array-types)
+/// + [Constructor Methods for Owned Arrays](ArrayBase#constructor-methods-for-owned-arrays)
+/// + [Methods For All Array Types](ArrayBase#methods-for-all-array-types)
 /// + Dimensionality-specific type alises
-/// [`Array1`](type.Array1.html),
-/// [`Array2`](type.Array2.html),
-/// [`Array3`](type.Array3.html), ...,
-/// [`ArrayD`](type.ArrayD.html),
+/// [`Array1`],
+/// [`Array2`],
+/// [`Array3`], ...,
+/// [`ArrayD`],
 /// and so on.
 pub type Array<A, D> = ArrayBase<OwnedRepr<A>, D>;
 
@@ -1350,20 +1341,17 @@ pub type Array<A, D> = ArrayBase<OwnedRepr<A>, D>;
 /// An `CowArray` represents either a uniquely owned array or a view of an
 /// array. The `'a` corresponds to the lifetime of the view variant.
 ///
-/// This type is analogous to
-/// [`std::borrow::Cow`](https://doc.rust-lang.org/std/borrow/enum.Cow.html).
+/// This type is analogous to [`std::borrow::Cow`].
 /// If a `CowArray` instance is the immutable view variant, then calling a
 /// method for mutating elements in the array will cause it to be converted
 /// into the owned variant (by cloning all the elements) before the
 /// modification is performed.
 ///
-/// Array views have all the methods of an array (see [`ArrayBase`][ab]).
+/// Array views have all the methods of an array (see [`ArrayBase`]).
 ///
-/// See also [`ArcArray`](type.ArcArray.html), which also provides
+/// See also [`ArcArray`], which also provides
 /// copy-on-write behavior but has a reference-counted pointer to the data
 /// instead of either a view or a uniquely owned copy.
-///
-/// [ab]: struct.ArrayBase.html
 pub type CowArray<'a, A, D> = ArrayBase<CowRepr<'a, A>, D>;
 
 /// A read-only array view.
@@ -1374,11 +1362,9 @@ pub type CowArray<'a, A, D> = ArrayBase<CowRepr<'a, A>, D>;
 /// The `ArrayView<'a, A, D>` is parameterized by `'a` for the scope of the
 /// borrow, `A` for the element type and `D` for the dimensionality.
 ///
-/// Array views have all the methods of an array (see [`ArrayBase`][ab]).
+/// Array views have all the methods of an array (see [`ArrayBase`]).
 ///
-/// See also [`ArrayViewMut`](type.ArrayViewMut.html).
-///
-/// [ab]: struct.ArrayBase.html
+/// See also [`ArrayViewMut`].
 pub type ArrayView<'a, A, D> = ArrayBase<ViewRepr<&'a A>, D>;
 
 /// A read-write array view.
@@ -1389,11 +1375,9 @@ pub type ArrayView<'a, A, D> = ArrayBase<ViewRepr<&'a A>, D>;
 /// The `ArrayViewMut<'a, A, D>` is parameterized by `'a` for the scope of the
 /// borrow, `A` for the element type and `D` for the dimensionality.
 ///
-/// Array views have all the methods of an array (see [`ArrayBase`][ab]).
+/// Array views have all the methods of an array (see [`ArrayBase`]).
 ///
-/// See also [`ArrayView`](type.ArrayView.html).
-///
-/// [ab]: struct.ArrayBase.html
+/// See also [`ArrayView`].
 pub type ArrayViewMut<'a, A, D> = ArrayBase<ViewRepr<&'a mut A>, D>;
 
 /// A read-only array view without a lifetime.
@@ -1405,15 +1389,13 @@ pub type ArrayViewMut<'a, A, D> = ArrayBase<ViewRepr<&'a mut A>, D>;
 /// T` and `&T`, but `RawArrayView` has additional requirements that `*const T`
 /// does not, such as non-nullness.
 ///
-/// [`ArrayView`]: type.ArrayView.html
-///
 /// The `RawArrayView<A, D>` is parameterized by `A` for the element type and
 /// `D` for the dimensionality.
 ///
 /// Raw array views have all the methods of an array (see
-/// [`ArrayBase`](struct.ArrayBase.html)).
+/// [`ArrayBase`]).
 ///
-/// See also [`RawArrayViewMut`](type.RawArrayViewMut.html).
+/// See also [`RawArrayViewMut`].
 ///
 /// # Warning
 ///
@@ -1430,15 +1412,13 @@ pub type RawArrayView<A, D> = ArrayBase<RawViewRepr<*const A>, D>;
 /// relationship between `*mut T` and `&mut T`, but `RawArrayViewMut` has
 /// additional requirements that `*mut T` does not, such as non-nullness.
 ///
-/// [`ArrayViewMut`]: type.ArrayViewMut.html
-///
 /// The `RawArrayViewMut<A, D>` is parameterized by `A` for the element type
 /// and `D` for the dimensionality.
 ///
 /// Raw array views have all the methods of an array (see
-/// [`ArrayBase`](struct.ArrayBase.html)).
+/// [`ArrayBase`]).
 ///
-/// See also [`RawArrayView`](type.RawArrayView.html).
+/// See also [`RawArrayView`].
 ///
 /// # Warning
 ///
@@ -1451,7 +1431,7 @@ pub use data_repr::OwnedRepr;
 /// ArcArray's representation.
 ///
 /// *Don’t use this type directly—use the type alias
-/// [`ArcArray`](type.ArcArray.html) for the array type!*
+/// [`ArcArray`] for the array type!*
 #[derive(Debug)]
 pub struct OwnedArcRepr<A>(Arc<OwnedRepr<A>>);
 
@@ -1464,8 +1444,7 @@ impl<A> Clone for OwnedArcRepr<A> {
 /// Array pointer’s representation.
 ///
 /// *Don’t use this type directly—use the type aliases
-/// [`RawArrayView`](type.RawArrayView.html) /
-/// [`RawArrayViewMut`](type.RawArrayViewMut.html) for the array type!*
+/// [`RawArrayView`] / [`RawArrayViewMut`] for the array type!*
 #[derive(Copy, Clone)]
 // This is just a marker type, to carry the mutability and element type.
 pub struct RawViewRepr<A> {
@@ -1482,8 +1461,7 @@ impl<A> RawViewRepr<A> {
 /// Array view’s representation.
 ///
 /// *Don’t use this type directly—use the type aliases
-/// [`ArrayView`](type.ArrayView.html)
-/// / [`ArrayViewMut`](type.ArrayViewMut.html) for the array type!*
+/// [`ArrayView`] / [`ArrayViewMut`] for the array type!*
 #[derive(Copy, Clone)]
 // This is just a marker type, to carry the lifetime parameter.
 pub struct ViewRepr<A> {
@@ -1500,7 +1478,7 @@ impl<A> ViewRepr<A> {
 /// CowArray's representation.
 ///
 /// *Don't use this type directly—use the type alias
-/// [`CowArray`](type.CowArray.html) for the array type!*
+/// [`CowArray`] for the array type!*
 pub enum CowRepr<'a, A> {
     /// Borrowed data.
     View(ViewRepr<&'a A>),

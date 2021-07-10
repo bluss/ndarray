@@ -8,15 +8,15 @@
 
 //! Constructors for randomized arrays: `rand` integration for `ndarray`.
 //!
-//! See [**`RandomExt`**](trait.RandomExt.html) for usage examples.
+//! See **[`RandomExt`]** for usage examples.
 //!
 //! ## Note
 //!
 //! `ndarray-rand` depends on [`rand` 0.8][rand].
 //!
 //! [`rand`][rand] and [`rand_distr`][rand_distr]
-//! are re-exported as sub-modules, [`ndarray_rand::rand`](rand/index.html)
-//! and [`ndarray_rand::rand_distr`](rand_distr/index.html) respectively.
+//! are re-exported as sub-modules, [`ndarray_rand::rand`](rand)
+//! and [`ndarray_rand::rand_distr`](rand_distr) respectively.
 //! You can use these submodules for guaranteed version compatibility or
 //! convenience.
 //!
@@ -60,7 +60,7 @@ pub mod rand_distr {
 /// Note that `SmallRng` is cheap to initialize and fast, but it may generate
 /// low-quality random numbers, and reproducibility is not guaranteed. See its
 /// documentation for information. You can select a different RNG with
-/// [`.random_using()`](#tymethod.random_using).
+/// [`.random_using()`](Self::random_using).
 pub trait RandomExt<S, A, D>
 where
     S: RawData<Elem = A>,
@@ -293,8 +293,8 @@ where
 /// if lanes from the original array should only be sampled once (*without replacement*) or
 /// multiple times (*with replacement*).
 ///
-/// [`sample_axis`]: trait.RandomExt.html#tymethod.sample_axis
-/// [`sample_axis_using`]: trait.RandomExt.html#tymethod.sample_axis_using
+/// [`sample_axis`]: RandomExt::sample_axis
+/// [`sample_axis_using`]: RandomExt::sample_axis_using
 #[derive(Debug, Clone)]
 pub enum SamplingStrategy {
     WithReplacement,

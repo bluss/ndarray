@@ -23,7 +23,7 @@ impl_ndproducer! {
     }
 }
 
-/// See [`.lanes()`](../struct.ArrayBase.html#method.lanes)
+/// See [`.lanes()`](ArrayBase::lanes)
 /// for more information.
 pub struct Lanes<'a, A, D> {
     base: ArrayView<'a, A, D>,
@@ -92,7 +92,7 @@ where
     }
 }
 
-/// See [`.lanes_mut()`](../struct.ArrayBase.html#method.lanes_mut)
+/// See [`.lanes_mut()`](ArrayBase::lanes_mut)
 /// for more information.
 pub struct LanesMut<'a, A, D> {
     base: ArrayViewMut<'a, A, D>,

@@ -53,9 +53,6 @@ where
 /// Methods specific to `ArrayView0`.
 ///
 /// ***See also all methods for [`ArrayView`] and [`ArrayBase`]***
-///
-/// [`ArrayBase`]: struct.ArrayBase.html
-/// [`ArrayView`]: struct.ArrayView.html
 impl<'a, A> ArrayView<'a, A, Ix0> {
     /// Consume the view and return a reference to the single element in the array.
     ///
@@ -82,9 +79,6 @@ impl<'a, A> ArrayView<'a, A, Ix0> {
 /// Methods specific to `ArrayViewMut0`.
 ///
 /// ***See also all methods for [`ArrayViewMut`] and [`ArrayBase`]***
-///
-/// [`ArrayBase`]: struct.ArrayBase.html
-/// [`ArrayViewMut`]: struct.ArrayViewMut.html
 impl<'a, A> ArrayViewMut<'a, A, Ix0> {
     /// Consume the mutable view and return a mutable reference to the single element in the array.
     ///

@@ -15,8 +15,6 @@ use crate::RawDataSubst;
 /// Methods specific to arrays with `MaybeUninit` elements.
 ///
 /// ***See also all methods for [`ArrayBase`]***
-///
-/// [`ArrayBase`]: struct.ArrayBase.html
 impl<A, S, D> ArrayBase<S, D>
 where
     S: RawDataSubst<A, Elem=MaybeUninit<A>>,

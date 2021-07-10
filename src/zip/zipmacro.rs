@@ -1,7 +1,7 @@
 /// Array zip macro: lock step function application across several arrays and
 /// producers.
 ///
-/// This is a shorthand for [`Zip`](struct.Zip.html).
+/// This is a shorthand for [`Zip`](crate::Zip).
 ///
 /// This example:
 ///

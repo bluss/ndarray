@@ -17,8 +17,6 @@ use crate::Zip;
 /// Methods specific to `Array0`.
 ///
 /// ***See also all methods for [`ArrayBase`]***
-///
-/// [`ArrayBase`]: struct.ArrayBase.html
 impl<A> Array<A, Ix0> {
     /// Returns the single element in the array without cloning it.
     ///
@@ -56,8 +54,6 @@ impl<A> Array<A, Ix0> {
 /// Methods specific to `Array`.
 ///
 /// ***See also all methods for [`ArrayBase`]***
-///
-/// [`ArrayBase`]: struct.ArrayBase.html
 impl<A, D> Array<A, D>
 where
     D: Dimension,
@@ -75,8 +71,6 @@ where
 /// Methods specific to `Array2`.
 ///
 /// ***See also all methods for [`ArrayBase`]***
-///
-/// [`ArrayBase`]: struct.ArrayBase.html
 impl<A> Array<A, Ix2> {
     /// Append a row to an array
     ///
