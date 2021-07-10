@@ -1,3 +1,4 @@
+use num_complex::Complex;
 use std::mem;
 use std::ptr::NonNull;
 
@@ -146,6 +147,73 @@ where
         );
         let ptr = self.ptr.cast::<B>();
         unsafe { RawArrayView::new(ptr, self.dim, self.strides) }
+    }
+}
+
+impl<T, D> RawArrayView<Complex<T>, D>
+where
+    D: Dimension,
+{
+    /// Splits the view into views of the real and imaginary components of the
+    /// elements.
+    pub fn split_re_im(self) -> Complex<RawArrayView<T, D>> {
+        // Check that the size and alignment of `Complex<T>` are as expected.
+        // These assertions should always pass, for arbitrary `T`.
+        assert_eq!(
+            mem::size_of::<Complex<T>>(),
+            mem::size_of::<T>().checked_mul(2).unwrap()
+        );
+        assert_eq!(mem::align_of::<Complex<T>>(), mem::align_of::<T>());
+
+        let dim = self.dim.clone();
+
+        // Double the strides. In the zero-sized element case and for axes of
+        // length <= 1, we leave the strides as-is to avoid possible overflow.
+        let mut strides = self.strides.clone();
+        if mem::size_of::<T>() != 0 {
+            for ax in 0..strides.ndim() {
+                if dim[ax] > 1 {
+                    strides[ax] *= 2;
+                }
+            }
+        }
+
+        let ptr_re: *mut T = self.ptr.as_ptr().cast();
+        let ptr_im: *mut T = if self.is_empty() {
+            // In the empty case, we can just reuse the existing pointer since
+            // it won't be dereferenced anyway. It is not safe to offset by
+            // one, since the allocation may be empty.
+            ptr_re
+        } else {
+            // In the nonempty case, we can safely offset into the first
+            // (complex) element.
+            unsafe { ptr_re.add(1) }
+        };
+
+        // `Complex` is `repr(C)` with only fields `re: T` and `im: T`. So, the
+        // real components of the elements start at the same pointer, and the
+        // imaginary components start at the pointer offset by one, with
+        // exactly double the strides. The new, doubled strides still meet the
+        // overflow constraints:
+        //
+        // - For the zero-sized element case, the strides are unchanged in
+        //   units of bytes and in units of the element type.
+        //
+        // - For the nonzero-sized element case:
+        //
+        //   - In units of bytes, the strides are unchanged. The only exception
+        //     is axes of length <= 1, but those strides are irrelevant anyway.
+        //
+        //   - Since `Complex<T>` for nonzero `T` is always at least 2 bytes,
+        //     and the original strides did not overflow in units of bytes, we
+        //     know that the new, doubled strides will not overflow in units of
+        //     `T`.
+        unsafe {
+            Complex {
+                re: RawArrayView::new_(ptr_re, dim.clone(), strides.clone()),
+                im: RawArrayView::new_(ptr_im, dim, strides),
+            }
+        }
     }
 }
 
@@ -298,5 +366,22 @@ where
         );
         let ptr = self.ptr.cast::<B>();
         unsafe { RawArrayViewMut::new(ptr, self.dim, self.strides) }
+    }
+}
+
+impl<T, D> RawArrayViewMut<Complex<T>, D>
+where
+    D: Dimension,
+{
+    /// Splits the view into views of the real and imaginary components of the
+    /// elements.
+    pub fn split_re_im(self) -> Complex<RawArrayViewMut<T, D>> {
+        let Complex { re, im } = self.into_raw_view().split_re_im();
+        unsafe {
+            Complex {
+                re: RawArrayViewMut::new(re.ptr, re.dim, re.strides),
+                im: RawArrayViewMut::new(im.ptr, im.dim, im.strides),
+            }
+        }
     }
 }

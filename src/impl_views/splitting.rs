@@ -8,6 +8,7 @@
 
 use crate::imp_prelude::*;
 use crate::slice::MultiSliceArg;
+use num_complex::Complex;
 
 /// Methods for read-only array views.
 impl<'a, A, D> ArrayView<'a, A, D>
@@ -95,6 +96,37 @@ where
     }
 }
 
+impl<'a, T, D> ArrayView<'a, Complex<T>, D>
+where
+    D: Dimension,
+{
+    /// Splits the view into views of the real and imaginary components of the
+    /// elements.
+    ///
+    /// ```
+    /// use ndarray::prelude::*;
+    /// use num_complex::{Complex, Complex64};
+    ///
+    /// let arr = array![
+    ///     [Complex64::new(1., 2.), Complex64::new(3., 4.)],
+    ///     [Complex64::new(5., 6.), Complex64::new(7., 8.)],
+    ///     [Complex64::new(9., 10.), Complex64::new(11., 12.)],
+    /// ];
+    /// let Complex { re, im } = arr.view().split_re_im();
+    /// assert_eq!(re, array![[1., 3.], [5., 7.], [9., 11.]]);
+    /// assert_eq!(im, array![[2., 4.], [6., 8.], [10., 12.]]);
+    /// ```
+    pub fn split_re_im(self) -> Complex<ArrayView<'a, T, D>> {
+        unsafe {
+            let Complex { re, im } = self.into_raw_view().split_re_im();
+            Complex {
+                re: re.deref_into_view(),
+                im: im.deref_into_view(),
+            }
+        }
+    }
+}
+
 /// Methods for read-write array views.
 impl<'a, A, D> ArrayViewMut<'a, A, D>
 where
@@ -133,5 +165,43 @@ where
         M: MultiSliceArg<'a, A, D>,
     {
         info.multi_slice_move(self)
+    }
+}
+
+impl<'a, T, D> ArrayViewMut<'a, Complex<T>, D>
+where
+    D: Dimension,
+{
+    /// Splits the view into views of the real and imaginary components of the
+    /// elements.
+    ///
+    /// ```
+    /// use ndarray::prelude::*;
+    /// use num_complex::{Complex, Complex64};
+    ///
+    /// let mut arr = array![
+    ///     [Complex64::new(1., 2.), Complex64::new(3., 4.)],
+    ///     [Complex64::new(5., 6.), Complex64::new(7., 8.)],
+    ///     [Complex64::new(9., 10.), Complex64::new(11., 12.)],
+    /// ];
+    ///
+    /// let Complex { mut re, mut im } = arr.view_mut().split_re_im();
+    /// assert_eq!(re, array![[1., 3.], [5., 7.], [9., 11.]]);
+    /// assert_eq!(im, array![[2., 4.], [6., 8.], [10., 12.]]);
+    ///
+    /// re[[0, 1]] = 13.;
+    /// im[[2, 0]] = 14.;
+    ///
+    /// assert_eq!(arr[[0, 1]], Complex64::new(13., 4.));
+    /// assert_eq!(arr[[2, 0]], Complex64::new(9., 14.));
+    /// ```
+    pub fn split_re_im(self) -> Complex<ArrayViewMut<'a, T, D>> {
+        unsafe {
+            let Complex { re, im } = self.into_raw_view_mut().split_re_im();
+            Complex {
+                re: re.deref_into_view_mut(),
+                im: im.deref_into_view_mut(),
+            }
+        }
     }
 }

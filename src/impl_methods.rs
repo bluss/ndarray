@@ -1452,7 +1452,7 @@ where
     /// Make the array unshared.
     ///
     /// This method is mostly only useful with unsafe code.
-    fn ensure_unique(&mut self)
+    pub(crate) fn ensure_unique(&mut self)
     where
         S: DataMut,
     {
