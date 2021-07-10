@@ -10,6 +10,7 @@
 
 pub use self::impl_linalg::general_mat_mul;
 pub use self::impl_linalg::general_mat_vec_mul;
+pub use self::impl_linalg::kron;
 pub use self::impl_linalg::Dot;
 
 mod impl_linalg;

@@ -691,6 +691,30 @@ unsafe fn general_mat_vec_mul_impl<A, S1, S2>(
     }
 }
 
+/// Kronecker product of 2D matrices.
+///
+/// The kronecker product of a LxN matrix A and a MxR matrix B is a (L*M)x(N*R)
+/// matrix K formed by the block multiplication A_ij * B.
+pub fn kron<T>(a: &Array2<T>, b: &Array2<T>) -> Array2<T>
+where
+    T: LinalgScalar,
+{
+    let dimar = a.shape()[0];
+    let dimac = a.shape()[1];
+    let dimbr = b.shape()[0];
+    let dimbc = b.shape()[1];
+    let mut out = Array2::zeros((dimar * dimbr, dimac * dimbc));
+    for (mut chunk, elem) in out
+        .exact_chunks_mut((dimbr, dimbc))
+        .into_iter()
+        .zip(a.iter())
+    {
+        let v: Array2<T> = Array2::from_elem((dimbr, dimbc), *(elem)) * b;
+        chunk.assign(&v);
+    }
+    out
+}
+
 #[inline(always)]
 /// Return `true` if `A` and `B` are the same type
 fn same_type<A: 'static, B: 'static>() -> bool {

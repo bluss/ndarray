@@ -6,6 +6,7 @@
 )]
 #![cfg(feature = "std")]
 use ndarray::linalg::general_mat_mul;
+use ndarray::linalg::kron;
 use ndarray::prelude::*;
 use ndarray::{rcarr1, rcarr2};
 use ndarray::{Data, LinalgScalar};
@@ -819,4 +820,66 @@ fn vec_mat_mul() {
             }
         }
     }
+}
+
+#[test]
+fn kron_square_f64() {
+    let a = arr2(&[[1.0, 0.0], [0.0, 1.0]]);
+    let b = arr2(&[[0.0, 1.0], [1.0, 0.0]]);
+
+    assert_eq!(
+        kron(&a, &b),
+        arr2(&[
+            [0.0, 1.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            [0.0, 0.0, 1.0, 0.0]
+        ]),
+    );
+
+    assert_eq!(
+        kron(&b, &a),
+        arr2(&[
+            [0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0]
+        ]),
+    )
+}
+
+#[test]
+fn kron_square_i64() {
+    let a = arr2(&[[1, 0], [0, 1]]);
+    let b = arr2(&[[0, 1], [1, 0]]);
+
+    assert_eq!(
+        kron(&a, &b),
+        arr2(&[[0, 1, 0, 0], [1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]]),
+    );
+
+    assert_eq!(
+        kron(&b, &a),
+        arr2(&[[0, 0, 1, 0], [0, 0, 0, 1], [1, 0, 0, 0], [0, 1, 0, 0]]),
+    )
+}
+
+#[test]
+fn kron_i64() {
+    let a = arr2(&[[1, 0]]);
+    let b = arr2(&[[0, 1], [1, 0]]);
+    let r = arr2(&[[0, 1, 0, 0], [1, 0, 0, 0]]);
+    assert_eq!(kron(&a, &b), r);
+
+    let a = arr2(&[[1, 0], [0, 0], [0, 1]]);
+    let b = arr2(&[[0, 1], [1, 0]]);
+    let r = arr2(&[
+        [0, 1, 0, 0],
+        [1, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 1],
+        [0, 0, 1, 0],
+    ]);
+    assert_eq!(kron(&a, &b), r);
 }
