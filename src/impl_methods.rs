@@ -241,6 +241,34 @@ where
         S::into_owned(self)
     }
 
+    /// Converts the array into `Array<A, D>` if this is possible without
+    /// cloning the array elements. Otherwise, returns `self` unchanged.
+    ///
+    /// ```
+    /// use ndarray::{array, rcarr2, ArcArray2, Array2};
+    ///
+    /// // Reference-counted, clone-on-write `ArcArray`.
+    /// let a: ArcArray2<_> = rcarr2(&[[1., 2.], [3., 4.]]);
+    /// {
+    ///     // Another reference to the same data.
+    ///     let b: ArcArray2<_> = a.clone();
+    ///     // Since there are two references to the same data, `.into_owned()`
+    ///     // would require cloning the data, so `.try_into_owned_nocopy()`
+    ///     // returns `Err`.
+    ///     assert!(b.try_into_owned_nocopy().is_err());
+    /// }
+    /// // Here, since the second reference has been dropped, the `ArcArray`
+    /// // can be converted into an `Array` without cloning the data.
+    /// let unique: Array2<_> = a.try_into_owned_nocopy().unwrap();
+    /// assert_eq!(unique, array![[1., 2.], [3., 4.]]);
+    /// ```
+    pub fn try_into_owned_nocopy(self) -> Result<Array<A, D>, Self>
+    where
+        S: Data,
+    {
+        S::try_into_owned_nocopy(self)
+    }
+
     /// Turn the array into a shared ownership (copy on write) array,
     /// without any copying.
     pub fn into_shared(self) -> ArcArray<A, D>
