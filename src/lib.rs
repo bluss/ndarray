@@ -89,7 +89,9 @@
 //!   - Enables parallel iterators, parallelized methods, the [`parallel`] module and [`par_azip!`].
 //!   - Implies std
 //! - `approx`
-//!   - Enables implementations of traits from the [`approx`] crate.
+//!   - Enables implementations of traits from version 0.4 of the [`approx`] crate.
+//! - `approx-0_5`
+//!   - Enables implementations of traits from version 0.5 of the [`approx`] crate.
 //! - `blas`
 //!   - Enable transparent BLAS support for matrix multiplication.
 //!     Uses ``blas-src`` for pluggable backend, which needs to be configured
@@ -1616,7 +1618,7 @@ pub mod linalg;
 mod impl_ops;
 pub use crate::impl_ops::ScalarOperand;
 
-#[cfg(feature = "approx")]
+#[cfg(any(feature = "approx", feature = "approx-0_5"))]
 mod array_approx;
 
 // Array view methods

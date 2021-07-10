@@ -34,6 +34,7 @@ num-complex = { version = "0.4", default-features = false }
 rayon_ = { version = "1.0.3", optional = true, package = "rayon" }
 
 approx = { version = "0.4", optional = true , default-features = false }
+approx-0_5 = { package = "approx", version = "0.5", optional = true , default-features = false }
 
 # Use via the `blas` crate feature!
 cblas-sys = { version = "0.1.4", optional = true, default-features = false }
@@ -64,7 +65,7 @@ serde-1 = ["serde"]
 test = []
 
 # This feature is used for docs
-docs = ["approx", "serde", "rayon"]
+docs = ["approx", "approx-0_5", "serde", "rayon"]
 
 std = ["num-traits/std", "matrixmultiply/std"]
 rayon = ["rayon_", "std"]
