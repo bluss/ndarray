@@ -53,3 +53,34 @@ where
         }
     }
 }
+
+impl<'a, A, Slice: ?Sized> From<&'a Slice> for CowArray<'a, A, Ix1>
+where
+    Slice: AsRef<[A]>,
+{
+    /// Create a one-dimensional clone-on-write view of the data in `slice`.
+    ///
+    /// **Panics** if the slice length is greater than [`isize::MAX`].
+    ///
+    /// ```
+    /// use ndarray::{array, CowArray};
+    ///
+    /// let array = CowArray::from(&[1., 2., 3., 4.]);
+    /// assert!(array.is_view());
+    /// assert_eq!(array, array![1., 2., 3., 4.]);
+    /// ```
+    fn from(slice: &'a Slice) -> Self {
+        Self::from(ArrayView1::from(slice))
+    }
+}
+
+impl<'a, A, S, D> From<&'a ArrayBase<S, D>> for CowArray<'a, A, D>
+where
+    S: Data<Elem = A>,
+    D: Dimension,
+{
+    /// Create a read-only clone-on-write view of the array.
+    fn from(array: &'a ArrayBase<S, D>) -> Self {
+        Self::from(array.view())
+    }
+}
