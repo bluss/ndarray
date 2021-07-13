@@ -176,6 +176,6 @@ where
     /// assert_eq!(a.clip(3., 6.), array![3., 3., 3., 3., 4., 5., 6., 6., 6., 6.]);
     /// ```
     pub fn clip(&self, min: A, max: A) -> Array<A, D> {
-        self.mapv(|v| A::max(v, min)).mapv(|v| A::min(v, max))
+        self.mapv(|v| A::min(A::max(v, min), max))
     }
 }
