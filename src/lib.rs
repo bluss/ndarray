@@ -1535,6 +1535,8 @@ mod impl_internal_constructors;
 mod impl_constructors;
 
 mod impl_methods;
+#[cfg(feature = "std")]
+mod impl_float_maths;
 mod impl_owned_array;
 mod impl_special_element_types;
 
